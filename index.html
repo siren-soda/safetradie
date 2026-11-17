@@ -1,0 +1,1100 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SafeTradie — Free pre-start &amp; SWMS for home trades</title>
+<meta name="description" content="Free pre-start check and SWMS builder for electricians, plumbers and carpenters working in homes. Quick to fill in on your phone, saves as a PDF.">
+<meta name="theme-color" content="#1f3a5f">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="SafeTradie">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Cpath d='M60 8 L102 23 V57 C102 84 84 103 60 112 C36 103 18 84 18 57 V23 Z' fill='%231f3a5f'/%3E%3Cpath d='M38 62 L60 42 L82 62 M45 57 V80 H75 V57' fill='none' stroke='%23F59E42' stroke-width='10' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+  :root{
+    --bg:#f3f4f1; --card:#fff; --ink:#1b2220; --muted:#5b6561; --line:#dce0db;
+    --brand:#1f3a5f; --brand-soft:#e8eef6; --warn:#9a3412; --warn-soft:#fdeee4;
+    --yes:#15803d; --no:#b91c1c; --r:12px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;overflow-x:hidden;background:var(--bg);color:var(--ink);font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-text-size-adjust:100%}
+  header{background:var(--brand);color:#fff;padding:16px 16px 0}
+  header .in{max-width:640px;margin:0 auto}
+  header .k{font-size:12px;letter-spacing:.12em;text-transform:uppercase;opacity:.75}
+  header h1{margin:3px 0 10px;font-size:21px;line-height:1.2}
+  nav{display:flex;gap:4px}
+  nav button{flex:1;border:0;background:transparent;color:#fff;opacity:.7;font:600 14px system-ui;padding:11px 6px;border-bottom:3px solid transparent;cursor:pointer}
+  nav button.on{opacity:1;border-bottom-color:#fff}
+  main{max-width:640px;margin:0 auto;padding:14px 12px 120px}
+  .view{display:none}.view.on{display:block}
+  section{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:14px;margin-bottom:12px}
+  section h2{font-size:14px;margin:0 0 10px;text-transform:uppercase;letter-spacing:.06em;color:var(--brand);display:flex;justify-content:space-between;align-items:center;gap:8px}
+  section h2 .n{background:var(--brand);color:#fff;border-radius:999px;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:12px;margin-right:8px;flex-shrink:0}
+  section h2 .l{display:flex;align-items:center}
+  section p{margin:0 0 8px;font-size:14.5px}
+  label.f{display:block;font-size:13px;color:var(--muted);margin:10px 0 4px}
+  label.f:first-child{margin-top:0}
+  input[type=text],input[type=tel],input[type=email],input[type=datetime-local],textarea{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:9px;font:inherit;background:#fbfcfb}
+  textarea{min-height:64px;resize:vertical}
+  input:focus,textarea:focus{outline:2px solid var(--brand);outline-offset:1px;border-color:transparent}
+  details{margin-top:10px}
+  summary{cursor:pointer;color:var(--brand);font-weight:600;font-size:14px;padding:4px 0}
+  .q{display:flex;gap:10px;align-items:center;justify-content:space-between;padding:10px 0;border-top:1px solid var(--line)}
+  .q:first-of-type{border-top:0;padding-top:0}
+  .q .t{flex:1;font-size:15px}
+  .q .t small{display:block;color:var(--muted);font-size:12.5px;margin-top:1px}
+  .seg{display:flex;border:1px solid var(--line);border-radius:9px;overflow:hidden;flex-shrink:0}
+  .seg button{border:0;background:#fbfcfb;font:600 14px system-ui;padding:9px 13px;min-width:50px;cursor:pointer;color:var(--muted)}
+  .seg button+button{border-left:1px solid var(--line)}
+  .seg button.on[data-v=Yes]{background:var(--warn);color:#fff}
+  .seg button.on[data-v=No]{background:var(--yes);color:#fff}
+  .ck{display:flex;gap:11px;align-items:flex-start;padding:9px 0;border-top:1px solid var(--line);font-size:15px;cursor:pointer}
+  .ck:first-child{border-top:0}
+  .ck input{width:22px;height:22px;margin-top:0;accent-color:var(--yes);flex-shrink:0}
+  .ck small{display:block;color:var(--muted);font-size:12.5px}
+  .grp{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--warn);margin:12px 0 2px;font-weight:700}
+  .tickall{border:1px solid var(--yes);color:var(--yes);background:#fff;border-radius:999px;padding:6px 12px;font:600 13px system-ui;cursor:pointer;text-transform:none;letter-spacing:0}
+  .alert{background:var(--warn-soft);color:var(--warn);border-left:4px solid var(--warn);border-radius:8px;padding:10px 12px;font-size:14px;margin:10px 0 0}
+  .alert a{color:inherit;font-weight:700}
+  .note{background:var(--brand-soft);border-radius:10px;padding:11px 12px;font-size:14px;margin-bottom:12px}
+  .hidden{display:none!important}
+  canvas.sig{width:100%;height:140px;border:1px dashed #9aa59f;border-radius:10px;background:#fbfcfb;touch-action:none;display:block}
+  .row{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+  .btn{appearance:none;border:0;border-radius:10px;padding:13px 16px;font:600 15px system-ui;cursor:pointer;text-align:center;text-decoration:none;display:inline-block}
+  .btn.p{background:var(--brand);color:#fff;flex:1}
+  .btn.s{background:#e7eae6;color:var(--ink)}
+  .btn.sm{padding:8px 12px;font-size:13px}
+  .bar{position:fixed;left:0;right:0;bottom:0;background:rgba(255,255,255,.97);border-top:1px solid var(--line);padding:10px 12px calc(10px + env(safe-area-inset-bottom));z-index:5}
+  .bar .in{max-width:640px;margin:0 auto;display:flex;gap:8px}
+  .bar .in .btn{flex:1}
+  .msg{max-width:640px;margin:0 auto 6px;font-size:13.5px;color:var(--muted);min-height:1em}
+  .msg.err{color:var(--no)} .msg.ok{color:var(--yes)}
+  .foot{font-size:12.5px;color:var(--muted);padding:0 4px}
+  .act{border-top:1px solid var(--line);padding:10px 0}
+  .act:first-of-type{border-top:0;padding-top:0}
+  .act .tg{display:flex;align-items:flex-start;gap:11px;font-size:15px;cursor:pointer}
+  .act .tg input{width:22px;height:22px;accent-color:var(--brand);flex-shrink:0}
+  .act textarea{min-height:150px;font-size:14px}
+  .res a{display:block;padding:11px 0;border-top:1px solid var(--line);color:var(--brand);text-decoration:none;font-weight:600;font-size:15px}
+  .res a:first-of-type{border-top:0}
+  .res a span{display:block;color:var(--muted);font-weight:400;font-size:13px;margin-top:2px}
+  .overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:flex-end;justify-content:center;z-index:10}
+  .overlay.show{display:flex}
+  .sheet{background:#fff;width:100%;max-width:640px;overflow-x:hidden;box-sizing:border-box;border-radius:16px 16px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom));max-height:88vh;overflow:auto}
+  .sheet h3{margin:0 0 8px}
+  .sheet p,.sheet li{font-size:14px}
+  .sheet ul{padding-left:18px;margin:6px 0 10px}
+  .sheet .row .btn{min-width:0;max-width:100%}
+  .sheet textarea{min-height:150px;font-size:13px;margin-top:8px}
+  .mailbox{word-break:break-all;font-size:13px;color:var(--muted);background:#f5f6f4;border-radius:8px;padding:8px 10px;margin:6px 0}
+  .install{display:flex;gap:10px;align-items:flex-start;background:#fff;border:1px solid var(--line);border-left:4px solid #F59E42;border-radius:12px;padding:11px 12px;margin-bottom:12px;font-size:14px}
+  .install img{width:36px;height:36px;border-radius:8px;flex-shrink:0}
+  .install .tx{flex:1}
+  .install .tx b{display:block;font-size:15px;margin-bottom:2px}
+  .install .x{border:0;background:none;font-size:22px;line-height:1;color:var(--muted);cursor:pointer;padding:0 2px;min-width:32px;min-height:32px}
+  .install .ico{display:inline-block;vertical-align:-3px}
+  .howbtn{margin-left:auto;flex-shrink:0;display:inline-flex;align-items:center;gap:6px;color:#fff;text-decoration:none;font:600 13px system-ui;border:1px solid rgba(255,255,255,.45);border-radius:999px;padding:8px 12px;min-height:36px}
+  .hsub{margin-top:2px;line-height:1.35;white-space:nowrap;letter-spacing:.08em!important}
+  @media (max-width:420px){ .hsub{font-size:10.5px!important;letter-spacing:.05em!important} .howbtn{font-size:12px;padding:7px 10px;gap:5px} header h1{font-size:22px!important} }
+  .overlay.how{align-items:center;padding:12px}
+  .howsheet{background:#fff;width:100%;max-width:400px;border-radius:18px;padding:14px 16px 12px;max-height:96vh;overflow:auto}
+  .howtop{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+  .howtop b{font-size:16px;color:var(--brand)}
+  .howtop .x{border:0;background:none;font-size:26px;line-height:1;color:var(--muted);cursor:pointer;min-width:40px;min-height:40px}
+  .phone{width:236px;height:420px;margin:0 auto;border:9px solid #1b2220;border-radius:30px;overflow:hidden;background:var(--bg);box-shadow:0 8px 24px rgba(0,0,0,.18)}
+  .howbar{height:4px;background:#e7eae6;border-radius:4px;margin:12px 0 8px;overflow:hidden}
+  #how-prog{height:100%;width:0;background:#F59E42}
+  .howcap{font-size:15px;line-height:1.4;min-height:64px;margin:0 0 8px;color:var(--ink)}
+  .howcap b{color:var(--brand)}
+  .ph{font:12px/1.35 system-ui,-apple-system,sans-serif;color:var(--ink);height:100%;display:flex;flex-direction:column}
+  .ph-hd{background:var(--brand);color:#fff;padding:10px 10px 8px;font-weight:700;font-size:13px}
+  .ph-hd span{color:#F59E42}
+  .ph-tabs{display:flex;gap:10px;font-size:10px;opacity:.8;margin-top:6px;font-weight:600}
+  .ph-tabs i{font-style:normal;padding-bottom:3px}
+  .ph-tabs i.on{opacity:1;border-bottom:2px solid #fff}
+  .ph-body{padding:8px;flex:1;display:flex;flex-direction:column;gap:7px;overflow:hidden}
+  .ph-card{background:#fff;border:1px solid var(--line);border-radius:8px;padding:8px}
+  .ph-t{font-size:10px;font-weight:700;letter-spacing:.06em;color:var(--brand);text-transform:uppercase;margin-bottom:5px}
+  .ph-l{font-size:10px;color:var(--muted);margin:4px 0 2px}
+  .ph-in{border:1px solid var(--line);border-radius:6px;padding:5px 6px;min-height:24px;background:#fbfcfb}
+  .ph-type{display:inline-block;overflow:hidden;white-space:nowrap;vertical-align:bottom;animation:ph-type 1.1s steps(22) both}
+  .ph-q{display:flex;align-items:center;justify-content:space-between;gap:6px;padding:5px 0;border-top:1px solid var(--line)}
+  .ph-q:first-of-type{border-top:0}
+  .ph-seg{display:flex;border:1px solid var(--line);border-radius:6px;overflow:hidden;flex-shrink:0}
+  .ph-seg i{font-style:normal;font-size:10px;font-weight:700;padding:3px 7px;color:var(--muted);background:#fff}
+  .ph-seg i.y{background:var(--warn);color:#fff;animation:ph-on .3s ease both}
+  .ph-seg i.n{background:var(--yes);color:#fff;animation:ph-on .3s ease both}
+  .ph-alert{background:var(--warn-soft);color:var(--warn);border-left:3px solid var(--warn);border-radius:6px;padding:6px;font-size:11px;animation:ph-pop .4s ease both}
+  .ph-ok{background:#e8f3ec;color:#15602f;border-left:3px solid var(--yes);border-radius:6px;padding:6px;font-size:11px;font-weight:600;animation:ph-pop .4s ease both}
+  .ph-ck{display:flex;align-items:center;gap:7px;padding:4px 0;font-size:11px}
+  .ph-box{width:15px;height:15px;border-radius:4px;border:1.5px solid var(--yes);background:var(--yes);color:#fff;font-size:10px;line-height:12px;text-align:center;flex-shrink:0;animation:ph-tick .25s ease both}
+  .ph-pill{align-self:flex-end;border:1px solid var(--yes);color:var(--yes);border-radius:999px;padding:3px 9px;font-size:10px;font-weight:700;animation:ph-tap .4s ease both}
+  .ph-btn{display:block;text-align:center;border-radius:7px;padding:8px;font-weight:700;font-size:12px;background:var(--brand);color:#fff;animation:ph-tap .45s ease both}
+  .ph-btn.s{background:#e7eae6;color:var(--ink);animation:none}
+  .ph-bar{display:flex;gap:6px;padding:7px 8px;background:#fff;border-top:1px solid var(--line)}
+  .ph-bar .ph-btn{flex:1}
+  .ph-sig{border:1px dashed #9aa59f;border-radius:7px;background:#fbfcfb;height:70px}
+  .ph-sig path{fill:none;stroke:#111;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:320;animation:ph-draw 1.4s ease both}
+  .ph-toast{position:relative;align-self:center;background:#15803d;color:#fff;border-radius:999px;padding:6px 12px;font-weight:700;font-size:11px;animation:ph-pop .4s ease both}
+  @keyframes ph-type{from{width:0}}
+  @keyframes ph-pop{from{opacity:0;transform:translateY(6px) scale(.96)}}
+  @keyframes ph-on{from{background:#fff;color:#5b6561}}
+  @keyframes ph-tick{from{background:#fff;border-color:#b8c0bb;color:transparent}}
+  @keyframes ph-draw{from{stroke-dashoffset:320}}
+  @keyframes ph-tap{0%{transform:scale(1)}40%{transform:scale(.9);filter:brightness(.85)}100%{transform:scale(1)}}
+  @media (prefers-reduced-motion:reduce){.ph *{animation:none!important}}
+  .stbar{display:flex;align-items:center;gap:8px;margin:0 0 12px}
+  .stbar .lb{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);flex-shrink:0}
+  .stchips{display:flex;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:2px 0}
+  .stchips::-webkit-scrollbar{display:none}
+  @media (max-width:520px){.stbar .lb{display:none}.stchips{flex:1;gap:4px;overflow:visible}.stchips button{flex:1 1 0;min-width:0!important;padding:0 2px!important;font-size:12.5px!important}}
+  .stchips button{flex-shrink:0;border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:999px;font:700 13px system-ui;padding:0 12px;min-height:36px;min-width:46px;cursor:pointer}
+  .stchips button.on{background:var(--brand);border-color:var(--brand);color:#fff}
+  .jt{display:flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;margin-bottom:12px;background:#fff}
+  .jt button{flex:1;border:0;background:#fff;font:600 14px system-ui;padding:11px 6px;color:var(--muted);cursor:pointer;min-height:44px}
+  .jt button+button{border-left:1px solid var(--line)}
+  .jt button.on{background:var(--brand);color:#fff}
+  .resi{margin:-4px 0 12px;padding:0 2px}
+  #qs-more-wrap{margin-top:4px;border-top:1px solid var(--line);padding-top:6px}
+  .badge{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;background:var(--brand-soft);color:var(--brand);border-radius:999px;padding:2px 7px;margin-left:6px;vertical-align:1px}
+  .tk{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:6px 8px;align-items:end}
+  .tk .f{grid-column:1 / -1;margin:8px 0 0}
+  .tk input{min-width:0}
+  .exp{grid-column:1 / -1;font-size:12.5px;margin-top:-2px}
+  .exp.warn{color:var(--warn)} .exp.bad{color:var(--no)}
+  .decl{display:flex;gap:10px;align-items:flex-start;font-size:15px;padding:6px 0}
+  .decl input{width:22px;height:22px;accent-color:var(--brand);flex-shrink:0}
+</style>
+</head>
+<body>
+<header><div class="in">
+  <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+    <div style="width:44px;height:44px;border-radius:11px;background:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+      <svg width="34" height="34" viewBox="0 0 120 120" aria-hidden="true"><path d="M60 8 L102 23 V57 C102 84 84 103 60 112 C36 103 18 84 18 57 V23 Z" fill="#1f3a5f"/><path d="M60 8 L102 23 V57 C102 84 84 103 60 112 Z" fill="#2b4d7a"/><path d="M38 62 L60 42 L82 62 M45 57 V80 H75 V57" fill="none" stroke="#F59E42" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <div>
+      <h1 style="margin:0;font-size:24px;letter-spacing:-.5px">Safe<span style="color:#F59E42">Tradie</span></h1>
+      <div class="k hsub">Free pre-start &amp; SWMS<br>for home trades</div>
+    </div>
+    <a href="#how" class="howbtn" id="how-open"><svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M3 1.5 L10 6 L3 10.5 Z" fill="currentColor"/></svg>How it works</a>
+  </div>
+  <nav>
+    <button data-v="pre" class="on">Pre-start</button>
+    <button data-v="swms">My SWMS</button>
+    <button data-v="res">Resources</button>
+  </nav>
+</div></header>
+
+<main>
+<div class="stbar" role="group" aria-label="Your state or territory"><span class="lb">State</span><div class="stchips" id="stchips"></div></div>
+<div class="install hidden" id="install" role="region" aria-label="Add SafeTradie to your home screen">
+  <img src="/icons/icon-192.png" alt="">
+  <div class="tx"><b>Add SafeTradie to your home screen</b><span id="install-how"></span>
+    <div class="row hidden" id="install-btn-row" style="margin-top:8px"><button type="button" class="btn p sm" id="install-btn" style="flex:0 0 auto">Install app</button></div>
+  </div>
+  <button type="button" class="x" id="install-x" aria-label="Dismiss">×</button>
+</div>
+
+<!-- ============ PRE-START ============ -->
+<div class="view on" id="v-pre">
+
+<div class="jt" role="group" aria-label="Your trade"><button type="button" data-trade="elec">Electrical</button><button type="button" data-trade="plumb">Plumbing &amp; gas</button><button type="button" data-trade="carp">Carpentry</button></div>
+<p class="foot resi"><b>Residential jobs only</b> — houses, units and townhouses. Not built for commercial, industrial or large construction sites.</p>
+
+<section>
+  <h2><span class="l"><span class="n">1</span>Job</span></h2>
+  <label class="f" for="p_name">Your name</label>
+  <input type="text" id="p_name" autocomplete="name">
+  <label class="f" for="p_site">Site address</label>
+  <input type="text" id="p_site">
+  <details>
+    <summary>More details (optional)</summary>
+    <label class="f" for="p_company">Business name</label>
+    <input type="text" id="p_company" autocomplete="organization">
+    <label class="f" for="p_jobref">Job / work order no.</label>
+    <input type="text" id="p_jobref">
+    <label class="f" for="p_when">Date &amp; time</label>
+    <input type="datetime-local" id="p_when">
+    <label class="f" for="p_photo">Site photo</label>
+    <input type="file" id="p_photo" accept="image/*">
+  </details>
+</section>
+
+<section>
+  <h2><span class="l"><span class="n">2</span>Today's job involves…</span></h2>
+  <div id="qs-main"></div>
+  <details id="qs-more-wrap"><summary>Other work on this job (optional)</summary><div id="qs-more"></div></details>
+  <div class="alert hidden" id="a-hrcw"><b>This is high-risk construction work — you need a SWMS before starting.</b> <span id="a-hrcw-list"></span> No SWMS yet? <a href="#" data-goto="swms">Make one in 2 minutes</a>.</div>
+  <div class="alert hidden" id="a-asbestos"><b>Asbestos:</b> don't drill, cut, sand or break suspected material. Work around it or stop and get it tested. Removal only by a licensed removalist (small amounts of non-friable asbestos have strict rules — check with your regulator).</div>
+  <div class="alert hidden" id="a-live"></div>
+  <div class="alert hidden" id="a-gas"><b>Gas:</b> licensed gasfitter only. Isolate and make safe before you start, no ignition sources, leak-test before you leave.</div>
+  <div class="alert hidden" id="a-trench"><b>Trench over 1.5 m:</b> sides must be supported, benched or battered before anyone goes in. In Victoria, WorkSafe must be notified at least 3 days before this work starts.</div>
+  <div class="alert hidden" id="a-confined"><b>Confined space:</b> don't go in unless you're trained, the space has been assessed and you have an entry permit and a standby person. Never go in to rescue someone — call 000.</div>
+  <div class="alert hidden" id="a-structural"><b>Structural work:</b> temporary props must be in place before anything load-bearing is cut or removed. Get an engineer's or builder's direction if you're not sure what's holding what up.</div>
+  <div class="alert hidden" id="a-silica"><b>Silica dust:</b> use on-tool water or dust extraction and a fitted P2 mask. No dry sweeping. Engineered stone benchtops: installing new ones is banned; cutting existing ones needs strict controls.</div>
+</section>
+
+<section>
+  <h2><span class="l"><span class="n">3</span>Checks</span><button type="button" class="tickall" id="tickall">Tick all</button></h2>
+  <div id="checks"></div>
+  <label class="f" for="p_other" style="margin-top:12px">Anything else on this site? (optional)</label>
+  <textarea id="p_other" placeholder="Hazard and what you'll do about it — e.g. dog on site, owner keeping it inside"></textarea>
+</section>
+
+<section>
+  <h2><span class="l"><span class="n">4</span>Sign</span></h2>
+  <div class="alert hidden" id="a-sign" style="margin:0 0 10px"><b>Your answers mean you need a SWMS for this job</b> <span id="a-sign-list"></span>. Have it ready before you start work. <a href="#" data-goto="swms">Make one now</a> — your pre-start stays filled in.</div>
+  <div class="alert hidden" id="a-attached" style="margin:0 0 10px;background:#e8f3ec;color:#15602f;border-left-color:#15803d"><b>SWMS attached ✓</b> It'll be emailed with this pre-start as a second PDF. <a href="#" id="detach">Remove</a></div>
+  <p class="foot" style="padding:0">By signing I confirm the checks above are done, the controls are in place, and I'll stop work if conditions change or something isn't safe.</p>
+  <canvas class="sig" id="p_sig"></canvas>
+  <div class="row"><button type="button" class="btn s sm" data-clear="p_sig">Clear</button></div>
+</section>
+
+<section>
+  <h2><span class="l"><span class="n">5</span>Send a copy to</span></h2>
+  <label class="f" for="p_myemail">Your email</label>
+  <input type="email" id="p_myemail" autocomplete="email">
+  <label class="f" for="p_ccemail">Send a copy to (optional)</label>
+  <input type="email" id="p_ccemail" placeholder="e.g. the business you're working for">
+  <p class="foot" style="padding:8px 0 0">SafeTradie doesn't keep a copy — your emailed or saved PDF is your record. Keep it.</p>
+</section>
+
+<p class="foot"><a href="#" id="p_reset">New job — clear this pre-start (keeps your details)</a></p>
+</div>
+
+<!-- ============ SWMS ============ -->
+<div class="view" id="v-swms">
+<div class="note"><b>Do this once, then reuse it.</b> A ready-made SWMS for the high-risk work your trade commonly does in homes. Fill in your details, check it suits how you work, sign it and save it to your phone. The daily pre-start covers anything different on each site.</div>
+
+<section>
+  <h2><span class="l"><span class="n">1</span>Your details</span></h2>
+  <label class="f" for="s_business">Business name</label>
+  <input type="text" id="s_business" autocomplete="organization">
+  <label class="f" for="s_preparer">Your name</label>
+  <input type="text" id="s_preparer" autocomplete="name">
+  <label class="f" for="s_phone">Phone</label>
+  <input type="tel" id="s_phone" autocomplete="tel">
+  <details>
+    <summary>Site / principal contractor (optional)</summary>
+    <label class="f" for="s_site">Workplace location</label>
+    <input type="text" id="s_site" placeholder="Leave blank for: Various residential sites">
+    <label class="f" for="s_pc">Builder / principal contractor (if any)</label>
+    <input type="text" id="s_pc">
+  </details>
+  <details id="tickets">
+    <summary>My licences &amp; tickets (optional — printed on your SWMS)</summary>
+    <div id="tk-list"></div>
+    <p class="foot" style="padding:8px 0 0">Saved on this phone only. We'll flag anything expiring in the next 60 days.</p>
+  </details>
+</section>
+
+<section>
+  <h2><span class="l"><span class="n">2</span>Work covered</span></h2>
+  <div class="jt" role="group" aria-label="Your trade"><button type="button" data-trade="elec">Electrical</button><button type="button" data-trade="plumb">Plumbing &amp; gas</button><button type="button" data-trade="carp">Carpentry</button></div>
+  <p class="foot" style="padding:0 0 8px">Ticked to suit your trade. Untick anything you never do, tick anything extra you do. Tap <b>Review</b> to see or edit the hazards and controls.</p>
+  <div id="acts"></div>
+</section>
+
+<section>
+  <h2><span class="l"><span class="n">3</span>Workers &amp; sign</span></h2>
+  <label class="f" for="s_workers">Who'll be working under this SWMS? (one per line)</label>
+  <textarea id="s_workers" placeholder="Your name, plus anyone working with you"></textarea>
+  <p class="foot" style="padding:8px 0 0">By signing I confirm I've reviewed and edited this SWMS for the work it covers, it reflects how the work will be done, and the workers listed have read it and been consulted. I understand the example content is general, and my business is responsible for this SWMS.</p>
+  <canvas class="sig" id="s_sig" style="margin-top:6px"></canvas>
+  <div class="row"><button type="button" class="btn s sm" data-clear="s_sig">Clear</button></div>
+</section>
+
+<section>
+  <h2><span class="l"><span class="n">4</span>Send a copy to</span></h2>
+  <label class="f" for="s_myemail">Your email</label>
+  <input type="email" id="s_myemail" autocomplete="email">
+  <label class="f" for="s_ccemail">Send a copy to (optional)</label>
+  <input type="email" id="s_ccemail" placeholder="e.g. the business you're working for">
+  <p class="foot" style="padding:8px 0 0">SafeTradie doesn't keep a copy. Keep your SWMS on your phone for every job it covers — and for at least 2 years after any notifiable incident.</p>
+</section>
+</div>
+
+<!-- ============ RESOURCES ============ -->
+<div class="view" id="v-res">
+<div class="note" id="res-note"></div>
+<div id="res-state"></div>
+<section class="res">
+  <h2>Useful in any state</h2>
+  <a href="https://safeworkaustralia.gov.au/doc/interactive-swms-tool">Safe Work Australia — Interactive SWMS tool<span>Step-by-step guide to preparing and using a SWMS</span></a>
+  <a href="https://www.mbansw.asn.au/sites/default/files/safety_guide_-_working_in_ceiling_spaces_-_handouts.pdf">Master Builders NSW — Working in ceiling spaces (PDF)<span>Checklist, rescue plan and sample SWMS</span></a>
+  <a href="https://worksafe.wa.gov.au/publications/guidance-note-working-roof-spaces">WorkSafe WA — Working in roof spaces<span>Hazards for trades working in roof spaces</span></a>
+  <a href="https://worksafe.qld.gov.au/safety-and-prevention/hazards/electricity/hazardous-electrical-environments/ceiling-spaces">WorkSafe Queensland — Electrical risks in ceiling spaces</a>
+  <a href="https://www.safework.sa.gov.au/workplaces/electrical/working-in-ceiling-spaces">SafeWork SA — Working in ceiling spaces</a>
+  <a href="https://www.byda.com.au">Before You Dig Australia<span>Free plans of underground services — lodge before any digging</span></a>
+</section>
+<section id="res-advice"></section>
+</div>
+
+<section>
+  <h2>About this tool</h2>
+  <p class="foot" style="padding:0" id="disc-text"></p>
+  <p class="foot" style="padding:0;margin-top:6px"><a href="#" id="disc-open">Terms of use</a> · <a href="#privacy">Privacy</a></p>
+</section>
+
+<section id="privacy">
+  <h2>Privacy</h2>
+  <p class="foot" style="padding:0">SafeTradie doesn't collect your information or use it for anything. What you enter stays on your device. Your name, contact details, licence numbers and state are saved in this browser so you don't have to retype them. Job answers, signatures and photos aren't saved once you start a new job. When you tap Send, the PDF and summary are emailed to the addresses you enter through our email delivery service (Resend). We don't keep a copy or use them for anything else; the delivery service keeps short-term sending records. Our web host (Netlify) keeps standard visit logs, such as IP addresses, like any website.</p>
+  <div class="row"><button type="button" class="btn s sm" id="clear-saved">Clear my saved details</button></div>
+</section>
+</main>
+
+<div class="bar">
+  <div class="msg" id="msg"></div>
+  <div class="in">
+    <button class="btn s" id="b_send" type="button">Send</button>
+    <button class="btn p" id="b_pdf" type="button">Save PDF</button>
+    <button class="btn p hidden" id="b_add" type="button">Add to pre-start</button>
+  </div>
+</div>
+
+<div class="overlay" id="gate"><div class="sheet">
+  <h3>Before you start</h3>
+  <div id="gate-text"></div>
+  <label class="decl"><input type="checkbox" id="gate-ok"> <span>I understand and accept these terms.</span></label>
+  <div class="row"><button class="btn p" type="button" id="gate-go" disabled>Continue</button></div>
+</div></div>
+
+<div class="overlay how" id="how-ov" role="dialog" aria-modal="true" aria-label="How SafeTradie works"><div class="howsheet">
+  <div class="howtop"><b>How SafeTradie works</b><button type="button" class="x" id="how-x" aria-label="Close">×</button></div>
+  <div class="phone"><div class="ph" id="how-screen"></div></div>
+  <div class="howbar"><div id="how-prog"></div></div>
+  <p class="howcap" id="how-cap" aria-live="polite"></p>
+  <div class="row"><button type="button" class="btn s" id="how-back">Back</button><button type="button" class="btn p" id="how-next">Next</button></div>
+  <p class="foot" style="text-align:center;margin:8px 0 0"><a href="#" id="how-skip">Skip — start a pre-start</a></p>
+</div></div>
+
+<div class="overlay" id="back"><div class="sheet">
+  <h3>SWMS done — now finish your pre-start</h3>
+  <p>Your pre-start answers are still there. Sign it and send it before you start work.</p>
+  <div class="row"><button class="btn p" type="button" id="back-go">Back to my pre-start</button><button class="btn s" type="button" id="back-stay">Not now</button></div>
+</div></div>
+
+<div class="overlay" id="ov"><div class="sheet">
+  <h3>Send a copy</h3>
+  <div id="ov-body"></div>
+  <textarea id="ov-txt" readonly></textarea>
+  <div class="row"><button class="btn s" type="button" id="ov-copy">Copy text</button><button class="btn p" type="button" id="ov-close">Done</button></div>
+</div></div>
+
+<script>
+(function(){
+const $=s=>document.querySelector(s), $$=s=>Array.from(document.querySelectorAll(s));
+const store={get(k){try{return localStorage.getItem(k);}catch(e){return null;}},set(k,v){try{localStorage.setItem(k,v);}catch(e){}}};
+const pad=n=>String(n).padStart(2,'0');
+const msg=(t,c)=>{const m=$('#msg');m.textContent=t||'';m.className='msg'+(c?' '+c:'');};
+
+/* ---------- Terms ---------- */
+const SHORT_DISC="Free guidance tool for residential work only — not for commercial, industrial or large construction sites. It is not a substitute for your own due diligence, site-specific risk assessment, or professional, legal or safety advice, and using it does not mean you have met your legal obligations. You are responsible for the safety of your work, your licensing, and for meeting all OHS/WHS laws that apply to you. To the extent permitted by law, the provider accepts no liability for any loss, injury or damage arising from its use.";
+const FULL_DISC=`
+<p><b>This is a free guidance tool only.</b> It gives general information and example content to help electricians, plumbers, gasfitters and carpenters think through common hazards on residential jobs.</p>
+<ul>
+<li><b>Residential work only.</b> SafeTradie is designed for work in and around houses, units and townhouses. It is not designed for commercial, industrial or civil sites, or for large construction projects run by a principal contractor — those sites have extra hazards and requirements it doesn't cover.</li>
+<li><b>Not a substitute for your own due diligence.</b> It does not replace your own hazard identification, site-specific risk assessment, consultation with your workers, or professional, legal or safety advice.</li>
+<li><b>You are responsible.</b> The person or business doing the work is solely responsible for the safety of that work, for preparing any required Safe Work Method Statement (SWMS), for holding the right licences and registrations, and for meeting all occupational health and safety / work health and safety laws, technical standards and any other legal or contract requirements. Those duties can't be passed to this tool or its provider.</li>
+<li><b>Edit it for every job.</b> The hazards and controls are general examples, not written for your site. Before you sign or send, remove what doesn't apply, add what's specific to the site and task, and go through it with the workers who'll use it.</li>
+<li><b>It's your document.</b> Don't present a SafeTradie document as prepared, checked or approved by SafeTradie, its provider or a regulator. The person and business who sign it are responsible for its content.</li>
+<li><b>No guarantee.</b> Using this tool or any document it produces does not mean you have complied with the law. Example content may be incomplete or unsuitable for your work or site — review and edit it before use.</li>
+<li><b>Laws differ by state.</b> SafeTradie shows guidance for the state or territory you pick (Victoria by default). Requirements differ between states and territories and change over time. Check requirements with your own regulator.</li>
+<li><b>Third-party links</b> are provided for convenience; their content is not controlled by the provider of this tool.</li>
+<li><b>Privacy.</b> What you enter stays on your device. If you tap Send, the PDF goes through our email delivery service to the addresses you enter, and we don't keep a copy.</li>
+<li><b>No liability.</b> To the extent permitted by law, the tool is provided "as is" and the provider excludes all liability for any loss, injury, damage, penalty or claim arising from use of, or reliance on, the tool or its output. Nothing here excludes rights you have under the Australian Consumer Law that can't be excluded.</li>
+</ul>`;
+$('#disc-text').textContent=SHORT_DISC; $('#gate-text').innerHTML=FULL_DISC;
+$('#gate-ok').addEventListener('change',e=>$('#gate-go').disabled=!e.target.checked);
+$('#gate-go').addEventListener('click',()=>{store.set('tk_terms3','1');$('#gate').classList.remove('show');});
+$('#disc-open').addEventListener('click',e=>{e.preventDefault();$('#gate-ok').checked=store.get('tk_terms3')==='1';$('#gate-go').disabled=!$('#gate-ok').checked;$('#gate').classList.add('show');});
+if(store.get('tk_terms3')!=='1') $('#gate').classList.add('show');
+
+/* ---------- Tabs ---------- */
+let view='pre';
+const PAIRS=[['p_name','s_preparer'],['p_company','s_business'],['p_myemail','s_myemail'],['p_ccemail','s_ccemail']];
+function syncTo(v){
+  PAIRS.forEach(([p,s])=>{const [from,to]=v==='swms'?[p,s]:[s,p];const fv=$('#'+from).value.trim(),t=$('#'+to);if(fv&&!t.value.trim())t.value=fv;});
+  if(v==='swms'&&!$('#s_workers').value.trim()&&$('#s_preparer').value.trim())$('#s_workers').value=$('#s_preparer').value.trim();
+}
+let fromPre=false, attached=null;
+function updateBar(){ const add=view==='swms'&&fromPre; $('#b_add').classList.toggle('hidden',!add); $('#b_send').classList.toggle('hidden',add); $('#b_pdf').classList.toggle('s',add); $('#b_pdf').classList.toggle('p',!add); }
+function show(v){if(v==='swms'&&view==='pre'&&goingFromPre)fromPre=true; if(v==='pre')fromPre=false; goingFromPre=false; syncTo(v);view=v;$$('nav button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));$$('.view').forEach(x=>x.classList.toggle('on',x.id==='v-'+v));
+  $('.bar').style.display=v==='res'?'none':'';msg('');window.scrollTo(0,0);setTimeout(sizeAll,30);updateBar();}
+$$('nav button').forEach(b=>b.addEventListener('click',()=>show(b.dataset.v)));
+let goingFromPre=false;
+document.addEventListener('click',e=>{const g=e.target.closest('[data-goto]');if(g){e.preventDefault();goingFromPre=(view==='pre');show(g.dataset.goto);}});
+function swmsDone(){ if(view==='swms'&&fromPre) $('#back').classList.add('show'); }
+$('#back-go').addEventListener('click',()=>{ $('#back').classList.remove('show'); checked.swms=true; renderChecks(); show('pre'); setTimeout(()=>{ const el=$('#p_sig'); if(el&&el.scrollIntoView) el.scrollIntoView({block:'center'}); msg("SWMS ticked off — sign and send your pre-start.",'ok'); },60); });
+$('#back-stay').addEventListener('click',()=>$('#back').classList.remove('show'));
+
+/* ---------- Signature ---------- */
+const pads={};
+function makePad(id){const cv=document.getElementById(id),ctx=cv.getContext('2d');
+  const p={cv,ctx,has:false,size(){const r=cv.getBoundingClientRect();if(!r.width)return;const d=window.devicePixelRatio||1,keep=p.has?cv.toDataURL():null;
+    cv.width=r.width*d;cv.height=r.height*d;ctx.setTransform(d,0,0,d,0,0);ctx.lineWidth=2.2;ctx.lineCap='round';ctx.lineJoin='round';ctx.strokeStyle='#111';
+    if(keep){const im=new Image();im.onload=()=>ctx.drawImage(im,0,0,r.width,r.height);im.src=keep;}},clear(){ctx.clearRect(0,0,cv.width,cv.height);p.has=false;}};
+  let dr=false,last=null;const pt=e=>{const r=cv.getBoundingClientRect();return{x:e.clientX-r.left,y:e.clientY-r.top};};
+  cv.addEventListener('pointerdown',e=>{dr=true;last=pt(e);cv.setPointerCapture(e.pointerId);});
+  cv.addEventListener('pointermove',e=>{if(!dr)return;const q=pt(e);ctx.beginPath();ctx.moveTo(last.x,last.y);ctx.lineTo(q.x,q.y);ctx.stroke();last=q;p.has=true;});
+  ['pointerup','pointercancel','pointerleave'].forEach(t=>cv.addEventListener(t,()=>dr=false));pads[id]=p;}
+makePad('p_sig');makePad('s_sig');
+function sizeAll(){Object.values(pads).forEach(p=>p.size());}
+sizeAll();window.addEventListener('resize',sizeAll);
+$$('[data-clear]').forEach(b=>b.addEventListener('click',()=>pads[b.dataset.clear].clear()));
+
+/* ---------- Remembered details ---------- */
+const REM={p_name:'name',p_company:'co',p_myemail:'em',p_ccemail:'cc',s_business:'co',s_preparer:'name',s_phone:'ph',s_myemail:'em',s_ccemail:'cc'};
+Object.entries(REM).forEach(([id,k])=>{const v=store.get('tk_'+k);if(v)$('#'+id).value=v;});
+Object.keys(REM).forEach(id=>$('#'+id).addEventListener('change',()=>{const v=$('#'+id).value.trim();if(v)store.set('tk_'+REM[id],v);}));
+function remember(pfx){Object.entries(REM).forEach(([id,k])=>{if(id.startsWith(pfx)){const v=$('#'+id).value.trim();if(v)store.set('tk_'+k,v);}});}
+
+/* =================== STATE / TERRITORY =================== */
+const NAT_ASB={t:'Asbestos Safety and Eradication Agency — Asbestos in homes',u:'https://www.asbestossafety.gov.au/about-asbestos/practical-guidance/householders-and-home-renovators',d:'Built or renovated before 1990? Where to look'};
+const NAT_HEAT={t:'Safe Work Australia — Working in heat',u:'https://www.safeworkaustralia.gov.au/safety-topic/hazards/working-heat/managing-risks',d:'Managing heat risks, incl. roof cavities'};
+const WHS_SILICA='Silica dust: these controls record how silica dust risks are managed for this work. Check your state\'s silica rules — some require extra steps such as a silica risk control plan.';
+const STATES={
+ VIC:{name:'Victoria',reg:'WorkSafe Victoria',phone:'1800 136 089',duty:'Employer / self-employed',
+  law:'Occupational Health and Safety Act 2004 and OHS Regulations 2017 (Vic)',
+  silica:'Silica dust: this section is the crystalline silica hazard control statement for this work (OHS Regulations 2017, Vic).',
+  lic:[{t:'Energy Safe Victoria — electrical licences and RECs',u:'https://www.energysafe.vic.gov.au',d:'Licensing, Certificates of Electrical Safety'},
+   {t:'Building and Plumbing Commission — plumbing and gasfitting',u:'https://www.bpc.vic.gov.au/plumbers/registration-and-licensing',d:'Which registration or licence you need'},
+   {t:'Building and Plumbing Commission — check a licence',u:'https://www.bpc.vic.gov.au/',d:'Look up a builder or plumber'}],
+  licNote:'Carpenters: Victoria has no carpentry trade licence yet (a registration scheme is being consulted on). Contracting directly with a homeowner for domestic building work over $10,000 needs builder registration.',
+  links:[
+   {t:'WorkSafe Victoria — SWMS template',u:'https://worksafe.vic.gov.au/resources/safe-work-method-statements-swms',d:'Official blank template plus guidance'},
+   {t:'WorkSafe Victoria — About SWMS',u:'https://www.worksafe.vic.gov.au/safe-work-method-statements-swms',d:'When you need one and what goes in it'},
+   {t:'WorkSafe Victoria — Falls through plaster ceilings',u:'https://www.worksafe.vic.gov.au/safety-alerts/multiple-workers-seriously-injured-falls-through-plaster-ceilings'},
+   {t:'WorkSafe Victoria — Ladders and preventing falls',u:'https://worksafe.vic.gov.au/resources/guidance-note-prevention-falls-construction'},
+   {t:'WorkSafe Victoria — Trenching safety',u:'https://www.worksafe.vic.gov.au/resources/trenching-safety-things-know',d:'Benching, battering and shoring'},
+   {t:'WorkSafe Victoria — Compliance code: Excavation',u:'https://www.worksafe.vic.gov.au/resources/compliance-code-excavation'},
+   {t:'WorkSafe & Energy Safe — Work near underground services',u:'https://www.worksafe.vic.gov.au/resources/guide-undertaking-work-near-underground-services',d:'No Go Zones around cables and gas'},
+   {t:'WorkSafe Victoria — Crystalline silica and the engineered stone ban',u:'https://www.worksafe.vic.gov.au/crystalline-silica-safety-basics'},
+   {t:'WorkSafe Victoria — Asbestos safety basics',u:'https://worksafe.vic.gov.au/asbestos-safety-basics'},
+   {t:'Asbestos in Victoria',u:'https://www.asbestos.vic.gov.au',d:'Where asbestos is found, identification tool'},
+   {t:'WorkSafe Victoria — Preventing heat illness',u:'https://www.worksafe.vic.gov.au/prevention-and-protection-heat-illness'}]},
+ NSW:{name:'New South Wales',reg:'SafeWork NSW',phone:'13 10 50',duty:'PCBU',
+  law:'Work Health and Safety Act 2011 and WHS Regulation 2025 (NSW)',silica:WHS_SILICA,
+  lic:[{t:'NSW Fair Trading — trade licences',u:'https://www.fairtrading.nsw.gov.au',d:'Electrical, plumbing, gasfitting and building licences'}],
+  links:[{t:'SafeWork NSW — Prepare a SWMS',u:'https://www.safework.nsw.gov.au/your-industry/construction/construction/general-requirements/prepare-safe-work-method-statement',d:'When you need one and what goes in it'}]},
+ ACT:{name:'Australian Capital Territory',reg:'WorkSafe ACT',phone:'13 22 81',duty:'PCBU',
+  law:'Work Health and Safety Act 2011 and WHS Regulation 2011 (ACT)',silica:WHS_SILICA,
+  lic:[{t:'Access Canberra — construction occupation licences',u:'https://www.accesscanberra.act.gov.au',d:'Electricians, plumbers, gasfitters and builders'}],
+  links:[{t:'WorkSafe ACT — Safe work method statements',u:'https://www.worksafe.act.gov.au/health-and-safety-portal/managing-safety/safe-work-method-statements',d:'Guidance note, template and sample SWMS'}]},
+ QLD:{name:'Queensland',reg:'WorkSafe Queensland',phone:'1300 362 128',duty:'PCBU',
+  law:'Work Health and Safety Act 2011 and WHS Regulation 2011 (Qld)',
+  silica:'Silica dust: in Queensland, the silica code of practice says a SWMS must be prepared for construction work that involves a risk of silica dust exposure. These controls form that part of your SWMS.',
+  lic:[{t:'QBCC — plumbing, drainage and building licences',u:'https://www.qbcc.qld.gov.au'}],
+  licNote:'Electrical licences in Queensland are issued by the Electrical Safety Office.',
+  links:[{t:'WorkSafe Queensland — Safe work method statements',u:'https://www.worksafe.qld.gov.au/resources/guides/safe-work-method-statements',d:'Duties and what a SWMS must include'},
+   {t:'WorkSafe Queensland — Silica code of practice (construction)',u:'https://www.worksafe.qld.gov.au/laws-and-compliance/codes-of-practice/managing-respirable-crystalline-silica-dust-exposure-in-construction-and-manufacturing-of-construction-elements-code-of-practice-2022'}]},
+ WA:{name:'Western Australia',reg:'WorkSafe WA',phone:'1300 307 877',duty:'PCBU',
+  law:'Work Health and Safety Act 2020 and WHS (General) Regulations 2022 (WA)',silica:WHS_SILICA,
+  lic:[],licNote:'Electrical, plumbing and gas licences and builder registration in WA are handled by Building and Energy.',
+  links:[{t:'WorkSafe WA — Construction work code, SWMS info sheet and template',u:'https://www.worksafe.wa.gov.au/publications/code-practice-construction-work'},
+   {t:'WorkSafe WA — Managing the risk of falls',u:'https://www.worksafe.wa.gov.au/managing-risk-falls-workplaces'}]},
+ SA:{name:'South Australia',reg:'SafeWork SA',phone:'1300 365 255',duty:'PCBU',
+  law:'Work Health and Safety Act 2012 and WHS Regulations 2012 (SA)',silica:WHS_SILICA,
+  lic:[{t:'Consumer and Business Services — trade licences',u:'https://www.cbs.sa.gov.au',d:'Electrical, plumbing, gas fitting and building work'}],
+  links:[{t:'SafeWork SA — Safe work method statements',u:'https://safework.sa.gov.au/industry/construction/safe-work-method-statements',d:'High risk construction work and SWMS'}]},
+ TAS:{name:'Tasmania',reg:'WorkSafe Tasmania',phone:'1300 366 322',duty:'PCBU',
+  law:'Work Health and Safety Act 2012 and WHS Regulations 2022 (Tas)',
+  silica:'Silica dust: in Tasmania, a SWMS can be used instead of a silica risk control plan if it includes all the content a risk control plan needs. Check WorkSafe Tasmania\'s silica guidance.',
+  lic:[{t:'CBOS — occupational licences',u:'https://cbos.tas.gov.au',d:'Electrical, plumbing, gas and building'}],
+  links:[{t:'WorkSafe Tasmania — Safe work method statements',u:'https://worksafe.tas.gov.au/topics/Health-and-Safety/safety-by-industry/construction/safe-work-method-statements-swms',d:'Which activities need one and what goes in it'},
+   {t:'WorkSafe Tasmania — Managing silica at construction sites (PDF)',u:'https://worksafe.tas.gov.au/__data/assets/pdf_file/0006/732174/Guidance-note-Managing-silica-at-construction-sites-Nov-24.pdf'}]},
+ NT:{name:'Northern Territory',reg:'NT WorkSafe',phone:'1800 019 115',duty:'PCBU',
+  law:'Work Health and Safety (National Uniform Legislation) Act 2011 and Regulations (NT)',silica:WHS_SILICA,
+  lic:[],licNote:'NT trade licences are issued by separate boards for electrical workers, plumbers and drainers, and building practitioners.',
+  links:[{t:'NT WorkSafe — SWMS for high risk construction work',u:'https://worksafe.nt.gov.au/forms-and-resources/bulletins/safe-work-method-statement-for-high-risk-construction-work',d:'What a SWMS is and what goes in it'},
+   {t:'NT WorkSafe — SWMS template (PDF)',u:'https://worksafe.nt.gov.au/_resources/documents/pdf/checklists/safe-work-method-statement-template.pdf'},
+   {t:'NT WorkSafe — White cards: online courses not recognised',u:'https://worksafe.nt.gov.au/forms-and-resources/news-and-events/news/2025/online-white-card-courses-not-recognised-in-the-nt',d:'NT white card training must be face-to-face'}]}
+};
+const ORDER=['VIC','NSW','ACT','QLD','WA','SA','TAS','NT'];
+let stCode = STATES[store.get('tk_state')] ? store.get('tk_state') : 'VIC';
+const ST=()=>Object.assign({code:stCode},STATES[stCode]);
+const esc=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const linkHTML=l=>`<a href="${esc(l.u)}">${esc(l.t)}${l.d?`<span>${esc(l.d)}</span>`:''}</a>`;
+function renderState(){
+  const st=ST();
+  $$('#stchips button').forEach(b=>{const on=b.dataset.st===stCode;b.classList.toggle('on',on);b.setAttribute('aria-pressed',on?'true':'false');});
+  $('#res-note').textContent=`Free official guidance for ${st.name}. Rules are similar across Australia but not identical — check with ${st.reg} if unsure.`;
+  const extra = stCode==='VIC' ? [] : [NAT_ASB,NAT_HEAT];
+  $('#res-state').innerHTML=`<section class="res"><h2>${esc(st.name)} — ${esc(st.reg)}</h2>${st.links.concat(extra).map(linkHTML).join('')}</section>
+    <section class="res"><h2>Trade licences</h2>${st.lic.map(linkHTML).join('')}${st.licNote?`<p class="foot" style="padding:${st.lic.length?'10px':'0'} 0 0">${esc(st.licNote)}</p>`:''}</section>`;
+  $('#res-advice').innerHTML=`<h2>Need advice?</h2><p>${esc(st.reg)}: <b>${esc(st.phone)}</b></p>`;
+}
+$('#stchips').innerHTML=ORDER.map(c=>`<button type="button" data-st="${c}" aria-label="${STATES[c].name}">${c}</button>`).join('');
+$$('#stchips button').forEach(b=>b.addEventListener('click',()=>{stCode=b.dataset.st;store.set('tk_state',stCode);renderState();
+  b.scrollIntoView&&b.scrollIntoView({block:'nearest',inline:'nearest'});msg(`Showing guidance for ${STATES[stCode].name}.`,'ok');}));
+
+/* =================== TRADE =================== */
+const TRADES={elec:'Electrical',plumb:'Plumbing & gas',carp:'Carpentry'};
+const ACTIVITY={elec:'Residential electrical installation, maintenance and repair',
+  plumb:'Residential plumbing, drainage and gasfitting',
+  carp:'Residential carpentry, renovation and maintenance'};
+let trade = TRADES[store.get('tk_trade')] ? store.get('tk_trade') : 'elec';
+const TRADENAME=()=>TRADES[trade];
+// Pick the text for this trade: a plain string, or {elec, plumb, carp, other}
+const pick=v=>typeof v==='string'?v:(v[trade]!=null?v[trade]:v.other);
+
+/* =================== PRE-START =================== */
+// hr = shown in the "you need a SWMS" list when answered Yes
+const QS={
+ ceiling:{t:'Going into the ceiling / roof space',hr:'ceiling space'},
+ over2m:{t:'Roof, scaffold or any other fall over 2 m',s:{plumb:'Roof plumbing, gutters, upper storeys, stairwells',other:'Roof, high ceilings, upper storeys, stairwells'},hr:'fall over 2 m'},
+ asbestos:{t:'Drilling, cutting or removing where there may be asbestos',s:{elec:'Built before 1990: old meter boards, fibro, eaves, textured ceilings',plumb:'Built before 1990: fibro, wet-area sheeting, old flues and pipes',other:'Built before 1990: fibro, eaves, wet-area sheeting, vinyl floors'},hr:'asbestos'},
+ live:{t:{elec:'Working on or near live electrical',other:'Working near wiring, switchboards or solar'},s:{elec:'Testing, fault-finding, switchboards, solar and batteries',other:'Cutting into walls, ceilings or floors with cables in them'},hr:'energised electrical'},
+ gas:{t:'Working on or near gas pipes or appliances',s:'Gas fitting, hot water units, cooktops, heaters',hr:'pressurised gas piping'},
+ dig:{t:'Any digging',s:{elec:'Cable trenches, posts, earth stakes',other:'Sewer, stormwater, water lines, footings, posts'}},
+ trench:{t:'Trench or pit deeper than 1.5 m',s:'Deep sewer or drainage work',hr:'trench over 1.5 m'},
+ confined:{t:'Going into a tank, pit or septic system',s:'Septic and rainwater tanks, deep pits, manholes',hr:'confined space'},
+ structural:{t:'Removing or altering a load-bearing wall, beam or post',s:'Anything that needs propping first',hr:'structural alterations needing temporary support'},
+ silica:{t:'Cutting or drilling brick, concrete, tiles, stone or fibre-cement',s:'Silica dust',hr:'silica dust'},
+ hot:{t:'Soldering, brazing, welding or grinding',s:'Sparks and flame near timber, insulation or dry grass'},
+ plant:{t:'Excavator, bobcat or other machinery working on site',hr:'mobile plant'}
+};
+const MAINQ={
+ elec:['ceiling','over2m','asbestos','live','silica','dig'],
+ plumb:['ceiling','over2m','asbestos','gas','dig','trench','confined','silica','hot'],
+ carp:['ceiling','over2m','asbestos','structural','live','silica']
+};
+const mainQ=()=>MAINQ[trade], moreQ=()=>Object.keys(QS).filter(k=>!MAINQ[trade].includes(k));
+const HR={};
+function qHTML(k){const q=QS[k],s=q.s?pick(q.s):'';
+  return `<div class="q" data-k="${k}"><div class="t">${pick(q.t)}${s?`<small>${s}</small>`:''}</div><div class="seg">${['Yes','No'].map(v=>`<button type="button" data-v="${v}" class="${HR[k]===v?'on':''}">${v}</button>`).join('')}</div></div>`;}
+function renderQs(){
+  $('#qs-main').innerHTML=mainQ().map(qHTML).join('');
+  $('#qs-more').innerHTML=moreQ().map(qHTML).join('');
+  if(moreQ().some(k=>HR[k]==='Yes')) $('#qs-more-wrap').open=true;
+  $$('#v-pre .q').forEach(q=>q.querySelectorAll('.seg button').forEach(b=>b.addEventListener('click',()=>{
+    q.querySelectorAll('button').forEach(x=>x.classList.remove('on'));b.classList.add('on');HR[q.dataset.k]=b.dataset.v;renderChecks();})));
+}
+
+const BASE=[
+ ['ladder','Ladder suitable, in good condition, on firm level ground — 3 points of contact'],
+ ['cables','Checked for hidden cables and pipes before drilling, cutting or fixing'],
+ ['tools','Tools and leads OK — tested and tagged with RCD protection, or battery'],
+ ['people','Spoke with occupant; kids, pets and trip hazards managed'],
+ ['contact','Someone knows where I am; phone charged; first aid kit in vehicle'],
+ ['lift','Heavy or awkward items lifted safely — get help or use a trolley'],
+ ['fit','Fit for work — not fatigued, unwell or affected by alcohol or drugs']
+];
+const TRADE_BASE={
+ elec:[['e_iso','Switched off, locked out and tagged at the board','Occupant told first; check for medical or life-support equipment'],
+       ['e_test','Tested for dead before touching — tester proved on a known live source first']],
+ plumb:[['pl_iso','Water isolated and pressure released before opening pipes'],
+        ['pl_hot','Hot water and hot pipes allowed to cool — scald risk'],
+        ['pl_hyg','Sewage or waste water: gloves and eye protection, wash up before eating or drinking']],
+ carp:[['cp_guard','Saws and nail guns: guards working, never tied back; eye and hearing protection on'],
+       ['cp_dust','Timber, MDF and treated-timber dust: extraction and P2 mask when cutting or sanding']]
+};
+const GROUPS={
+ ceiling:['Ceiling space',[
+  ['c_power','Power isolated to the work area, or all cables and metal treated as live','Solar PV cabling stays live in daylight'],
+  ['c_joists','Stay on joists / crawl boards, with good lighting'],
+  ['c_heat','Heat OK — water, breaks, avoid the hottest part of the day'],
+  ['c_ppe','P2 mask, gloves, long sleeves for insulation and dust'],
+  ['c_rescue','Rescue plan: someone can reach me, knows to call 000, and I can get out fast']]],
+ over2m:['Height over 2 m',[
+  ['h_prot','Fall protection in place — scaffold, edge protection, harness or platform ladder'],
+  ['h_roof','Roof: weather, wet or brittle sheeting and skylights checked']]],
+ asbestos:['Asbestos',[
+  ['a_ask','Asked the owner about asbestos; suspected material won\'t be drilled, cut or broken'],
+  ['a_stop','If I disturb anything suspect: stop, keep people away, get it tested']]],
+ live:['Electrical',{
+  elec:[['l_rules','No live work unless the law allows it — then with a safety observer, insulated tools and the right PPE'],
+        ['l_solar','Solar, batteries and generators isolated too — PV is live in daylight']],
+  other:[['l_keep','I won\'t touch, cut or move wiring — an electrician isolates it first'],
+         ['l_detect','Walls, ceilings and floors checked with a detector before cutting']]}],
+ gas:['Gas',[
+  ['g_lic','Gas work done by a licensed gasfitter'],
+  ['g_iso','Gas isolated at the meter or appliance; no flames or sparks nearby; area ventilated'],
+  ['g_test','Leak test and appliance safety check before I leave']]],
+ dig:['Digging',[
+  ['d_byda','Before You Dig plans checked and services located on site'],
+  ['d_hand','Hand-dig or vacuum-excavate near located services']]],
+ trench:['Trench over 1.5 m',[
+  ['t_support','Sides shored, benched or battered before anyone goes in'],
+  ['t_notify','WorkSafe notified if required (Victoria: at least 3 days before)'],
+  ['t_edge','Spoil and machines kept back from the edge; trench barricaded when unattended']]],
+ confined:['Confined space',[
+  ['cs_permit','Trained in confined space entry; space assessed; entry permit issued'],
+  ['cs_air','Air tested and ventilated; standby person outside; rescue plan ready']]],
+ structural:['Structural',[
+  ['st_prop','Temporary props in place before anything load-bearing is cut or removed'],
+  ['st_eng','Engineer or builder has said how it\'s to be supported']]],
+ silica:['Silica dust',[
+  ['x_dust','Dust controlled — on-tool water or extraction, no dry sweeping'],
+  ['x_p2','Fitted P2 mask while cutting or drilling; others kept clear']]],
+ hot:['Hot work',[
+  ['ht_ext','Fire extinguisher or water on hand'],
+  ['ht_clear','Timber, insulation and other combustibles cleared or shielded; area checked after']]],
+ plant:['Machinery',[
+  ['pm_zone','Kept clear of the machine\'s swing and travel; eye contact with the operator before approaching'],
+  ['pm_vis','Hi-vis on']]]
+};
+const SWMS_CK=[['swms','I have my SWMS for this work, and it covers today\'s tasks']];
+const checked={};
+function ckHTML(list){return list.map(([k,t,s])=>`<label class="ck"><input type="checkbox" data-ck="${k}" ${checked[k]?'checked':''}><span>${t}${s?`<small>${s}</small>`:''}</span></label>`).join('');}
+const isYes=k=>HR[k]==='Yes';
+function groupList(k){const g=GROUPS[k][1];return Array.isArray(g)?g:pick(g);}
+function activeGroups(){return Object.keys(QS).filter(k=>isYes(k)&&GROUPS[k]).map(k=>[k,GROUPS[k][0],groupList(k)]);}
+function hrcwList(){return Object.keys(QS).filter(k=>isYes(k)&&QS[k].hr).map(k=>QS[k].hr);}
+function activeChecks(){let l=[...BASE,...TRADE_BASE[trade]];if(hrcwList().length)l=l.concat(SWMS_CK);activeGroups().forEach(([,,list])=>{l=l.concat(list);});return l;}
+const LIVE_ALERT={elec:'<b>Live electrical:</b> isolate, lock out, tag and test before you touch. Live work is only allowed in limited cases set by law — with a safety observer and the right gear.',
+  other:'<b>Electrical:</b> don\'t touch, cut or move wiring. Have a licensed electrician isolate it. Solar panels are live whenever it\'s light.'};
+function renderChecks(){
+  let h=ckHTML(BASE)+`<div class="grp">${esc(TRADENAME())}</div>`+ckHTML(TRADE_BASE[trade]);
+  const hr=hrcwList();
+  if(hr.length) h+=`<div class="grp">SWMS</div>`+ckHTML(SWMS_CK);
+  activeGroups().forEach(([,label,list])=>{ h+=`<div class="grp">${label}</div>`+ckHTML(list); });
+  $('#checks').innerHTML=h;
+  $$('#checks input').forEach(i=>i.addEventListener('change',()=>{checked[i.dataset.ck]=i.checked;}));
+  $('#a-hrcw').classList.toggle('hidden',!hr.length);
+  $('#a-sign').classList.toggle('hidden',!hr.length||!!attached); $('#a-attached').classList.toggle('hidden',!attached); $('#a-sign-list').textContent=hr.length?'('+hr.join(', ')+')':''; $('#a-hrcw-list').textContent=hr.length?'('+hr.join(', ')+')':'';
+  $('#a-live').innerHTML=pick(LIVE_ALERT);
+  ['asbestos','live','gas','trench','confined','structural','silica'].forEach(k=>$('#a-'+k).classList.toggle('hidden',!isYes(k)));
+}
+$('#tickall').addEventListener('click',()=>{activeChecks().forEach(([k])=>checked[k]=true);renderChecks();});
+
+function setNow(){const n=new Date();$('#p_when').value=`${n.getFullYear()}-${pad(n.getMonth()+1)}-${pad(n.getDate())}T${pad(n.getHours())}:${pad(n.getMinutes())}`;}
+setNow();
+let photo=null;
+$('#p_photo').addEventListener('change',e=>{const f=e.target.files[0];if(!f){photo=null;return;}
+  const rd=new FileReader();rd.onload=()=>{const im=new Image();im.onload=()=>{const s=Math.min(1,1000/Math.max(im.width,im.height));const c=document.createElement('canvas');
+  c.width=im.width*s;c.height=im.height*s;c.getContext('2d').drawImage(im,0,0,c.width,c.height);photo={data:c.toDataURL('image/jpeg',0.8),w:c.width,h:c.height};};im.src=rd.result;};rd.readAsDataURL(f);});
+
+// Main questions always go on the record; extra ones only if answered
+const recordQ=()=>mainQ().concat(moreQ().filter(k=>HR[k]));
+function preData(){const w=$('#p_when').value||'';
+  return{name:$('#p_name').value.trim(),site:$('#p_site').value.trim(),company:$('#p_company').value.trim(),jobref:$('#p_jobref').value.trim(),
+    when:w?new Date(w).toLocaleString('en-AU',{dateStyle:'medium',timeStyle:'short'}):'',date:w.slice(0,10),
+    job:TRADENAME(), hr:recordQ().map(k=>({q:pick(QS[k].t),a:HR[k]})),
+    checks:activeChecks().map(([k,t])=>({t,ok:!!checked[k]})),other:$('#p_other').value.trim()};}
+function preValidate(){const m=[];if(!$('#p_name').value.trim())m.push('your name');if(!$('#p_site').value.trim())m.push('site address');
+  const u=mainQ().filter(k=>!HR[k]).length;if(u)m.push(`answer the ${u} job question${u>1?'s':''} in step 2`);
+  const nc=activeChecks().filter(([k])=>!checked[k]).length;if(nc)m.push(`${nc} check${nc>1?'s':''} not ticked — sort it out or note why in "Anything else"`);
+  if(!pads.p_sig.has)m.push('signature');return m;}
+function preText(d){let t=`PRE-START — ${d.site}\n${d.when} · ${d.name}${d.company?' ('+d.company+')':''}\n${ST().code} · ${d.job} · Residential${d.jobref?' · Job: '+d.jobref:''}`;
+  const hr=hrcwList();t+=hr.length?`\n\nHigh-risk work (SWMS required): ${hr.join(', ')}`:`\n\nNo high-risk construction work identified.`;
+  t+=`\n\nChecks:\n${d.checks.map(c=>(c.ok?'✓ ':'✗ ')+c.t).join('\n')}`;if(d.other)t+=`\n\nOther: ${d.other}`;
+  t+=`\n\nSigned: ${d.name}\n\n— Free guidance tool for residential work. The contractor is responsible for their own safety compliance.`;return t;}
+$('#p_reset').addEventListener('click',e=>{e.preventDefault();attached=null;['p_site','p_jobref','p_other'].forEach(id=>$('#'+id).value='');$('#p_photo').value='';photo=null;
+  Object.keys(HR).forEach(k=>delete HR[k]);Object.keys(checked).forEach(k=>delete checked[k]);
+  pads.p_sig.clear();setNow();renderQs();renderChecks();msg('');window.scrollTo(0,0);});
+
+/* =================== SWMS =================== */
+// on = trades it's ticked for by default. h/c = text, or per-trade text
+const ACTS=[
+ {id:'falls',on:['elec','plumb','carp'],title:'Falls over 2 m, including ceiling spaces and roofs',
+  h:`- Falling through a plasterboard ceiling from the roof space
+- Falling from a ladder, trestle or mobile scaffold
+- Falling from roof edges, through skylights or brittle roof sheeting
+- Falling into stairwell voids or from upper-storey openings
+- Tripping on joists, ducts, pipes or cabling`,
+  c:`- Plan the job to do as much as possible from the ground or from below the ceiling
+- Industrial-rated ladder (platform ladder preferred) on firm level ground; 3 points of contact; no overreaching
+- Roof work: scaffold or edge protection first; otherwise a fall-restraint harness on a rated anchor. No working on wet or brittle roofs
+- Mobile scaffold: locked wheels, guardrails fitted, on level ground
+- In the roof space, stay on joists/trusses; use crawl boards spanning at least two joists; good lighting
+- Someone knows you're up there; phone on you
+- Rescue plan: if someone falls or collapses, call 000, don't go in alone, first aid kit on site`},
+ {id:'heat',on:['elec','plumb','carp'],title:'Hot roof spaces (artificial extremes of temperature)',
+  h:`- Heat stress and heat stroke in roof spaces, especially in summer and the middle of the day
+- Dehydration and fatigue leading to slips or falls through the ceiling
+- Collapse in a roof space where rescue is difficult`,
+  c:`- Do roof space work early in the day; avoid it in extreme heat
+- Limit time in the roof space; take regular breaks out of the heat; drink water
+- Know the signs of heat illness — get out if dizzy, nauseous, confused or cramping
+- Someone knows you're in the roof and checks on you; phone on you
+- Rescue: if someone collapses, call 000, don't climb in alone, cool them once they're out`},
+ {id:'elec',on:['elec','plumb','carp'],title:'Work on or near energised electrical installations',
+  h:{elec:`- Electric shock or arc flash from live conductors, switchboards and meters
+- Back-feed from solar, batteries, generators or incorrect wiring
+- Live metal (foil sarking, battens, downlights) from faulty wiring
+- Re-energising by someone else while work is under way`,
+   other:`- Electric shock from cutting, drilling or nailing into concealed cables
+- Damaged or deteriorated cables in roof spaces and walls
+- Live metal (foil sarking, battens, pipes) from faulty wiring
+- Solar PV cabling live in daylight`},
+  c:{elec:`- Isolate at the switchboard; lock out and tag; tell the occupant first and check for medical or life-support equipment
+- Test for dead before touching — prove the tester on a known live source before and after
+- Treat solar PV, batteries and generators as separate supplies; isolate them all
+- No live work unless permitted by law; if it is, a trained safety observer, insulated tools, mats and arc-rated PPE
+- Battery tools preferred; corded tools and leads tested and tagged, RCD protected
+- Test and certify the work before re-energising; issue the Certificate of Electrical Safety (or your state's equivalent)`,
+   other:`- Don't work on electrical installations — electrical work by a licensed electrician only
+- Have an electrician isolate power to the work area where cables may be disturbed
+- Otherwise treat all cables and metal as live; don't touch, move or step on cables
+- Cable detector on walls, floors and ceilings before cutting, drilling or nailing; avoid areas above/below power points and switches
+- Non-contact voltage tester on metal before touching
+- Treat solar PV cabling as live at all times
+- Battery tools preferred; corded tools and leads tested and tagged, RCD protected`}},
+ {id:'asb',on:['elec','plumb','carp'],title:'Work likely to disturb asbestos',
+  h:`- Disturbing asbestos when drilling, cutting or removing fibro, eaves, meter boards, wet-area sheeting, vinyl floors, flues or ceilings
+- Loose-fill or deteriorated insulation
+- Fibres carried on clothing, tools or into the home`,
+  c:`- Check building age; ask the owner about known asbestos
+- Built or renovated before 1990 and unsure: assume suspected materials contain asbestos
+- Don't drill, cut, sand or break suspected material — reroute, mount elsewhere, or get it sampled and tested first
+- Removal by a licensed asbestos removalist (small non-friable jobs only within your state's strict limits)
+- Never use power tools, sanding or compressed air on suspected material
+- If disturbed by accident: stop, keep people away, tell the owner, get advice`},
+ {id:'silica',on:['elec','plumb','carp'],title:'Cutting or drilling brick, concrete, tiles, stone or fibre-cement (crystalline silica dust)',
+  h:`- Breathing crystalline silica dust from cutting, drilling or chasing brick, concrete, render, mortar, tiles, stone or fibre-cement sheet
+- Long-term lung disease (silicosis, lung cancer) from repeated exposure
+- Dust exposure to occupants and others nearby`,
+  c:`- Plan the work to cut and drill as little as possible; use existing penetrations
+- On-tool water suppression or dust extraction (H-class vacuum preferred) on every cut
+- Fitted P2 (or better) respirator while cutting; eye protection
+- Keep others away; no dry sweeping or compressed air — vacuum or wet-wipe
+- Engineered stone: installing new benchtops, panels or slabs is banned; removing or modifying existing ones only with strict silica controls`},
+ {id:'gas',on:['plumb'],title:'Work on or near pressurised gas piping',
+  h:`- Fire or explosion from gas leaks
+- Carbon monoxide from faulty appliances or flues
+- Striking gas lines when drilling or digging`,
+  c:`- Gas work by a licensed gasfitter only
+- Isolate at the meter or appliance; cap open ends; no naked flames, smoking or sparks nearby
+- Ventilate the area; purge lines safely
+- Leak test after work; check appliance operation, flueing and ventilation before leaving
+- Locate gas lines before drilling or digging (Before You Dig, pipe locator)
+- If you smell gas or hit a line: stop, move people away, call the gas distributor's emergency line`},
+ {id:'trench',on:['plumb'],title:'Trenches or shafts deeper than 1.5 m and underground services',
+  h:`- Trench collapse and being buried
+- Striking underground power, gas, water or comms
+- Falling into open trenches or pits
+- Spoil, machines or water undermining the sides`,
+  c:`- Before You Dig plans and on-site locating before any digging; hand-dig or vacuum-excavate near services
+- Keep trenches shallow where possible; anything deeper than 1.5 m shored, benched or battered before entry
+- Notify the regulator where required (Victoria: WorkSafe at least 3 days before a trench over 1.5 m)
+- Spoil and machines kept back from the edge; safe ladder access
+- Barricade and cover trenches when unattended; inspect after rain`},
+ {id:'confined',on:['plumb'],title:'Work in or near a confined space',
+  h:`- Low oxygen or toxic gases (e.g. hydrogen sulphide) in tanks, pits and septic systems
+- Engulfment or drowning
+- Difficult rescue`,
+  c:`- Avoid entry — work from outside wherever possible
+- Entry only by trained workers, with a risk assessment and entry permit
+- Test the air before and during entry; ventilate
+- Standby person outside at all times; rescue plan and equipment in place
+- Never enter to rescue someone — call 000`},
+ {id:'structural',on:['carp'],title:'Structural alterations needing temporary support',
+  h:`- Collapse of walls, ceilings, roofs or floors when load-bearing members are cut or removed
+- Being struck or crushed by falling structure or materials`,
+  c:`- Confirm what is load-bearing before starting; follow an engineer's design or builder's direction
+- Temporary props installed and checked before anything is cut or removed
+- Exclusion zone below and around the work
+- Props stay until the permanent support is installed and fixed
+- Stop and get advice if anything moves, cracks or sags`},
+ {id:'plant',on:[],title:'Work where mobile plant is moving (excavators, bobcats)',
+  h:`- Being struck or crushed by moving plant
+- Plant striking services or collapsing trench edges`,
+  c:`- Operator licensed or competent for the machine
+- Exclusion zone around the machine's swing and travel; spotter where needed
+- Eye contact with the operator before approaching
+- Hi-vis worn`},
+ {id:'env',on:['elec','plumb','carp'],title:'Everyday hazards — tools, dust, manual handling, working alone (recommended)',
+  h:{plumb:`- Burns from soldering, brazing and hot pipes; fire from hot work
+- Sewage and waste water (infection)
+- Manual handling: hot water units, tanks, pipe, ladders
+- Insulation fibres, vermin, insects, spiders
+- Working alone`,
+   carp:`- Cuts and amputations from saws; nail gun injuries
+- Noise; timber, MDF and treated-timber dust
+- Manual handling: sheets, beams, doors, ladders
+- Vermin, insects, spiders
+- Working alone`,
+   other:`- Insulation fibres and dust
+- Vermin, insects, spiders
+- Manual handling: ladders, cable drums, equipment
+- Working alone`},
+  c:{plumb:`- Hot work: fire extinguisher on hand, combustibles cleared or shielded, area checked after
+- Sewage: gloves, eye protection, wash up before eating or drinking; keep vaccinations up to date
+- Get help or use a trolley for heavy items
+- P2 mask and gloves for insulation; check for spiders and vermin before reaching into spaces
+- Check-in arrangement when working alone`,
+   carp:`- Guards fitted and working; never tied back; blade and tool checked before use
+- Nail guns: sequential trigger where possible; never point at anyone
+- Eye and hearing protection; dust extraction and P2 mask when cutting or sanding
+- Get help or use lifting aids for sheets and beams
+- Check-in arrangement when working alone`,
+   other:`- P2 respirator, gloves, long sleeves, eye protection for insulation and dust
+- Check for spiders and vermin before reaching into spaces
+- Get help or use a trolley for heavy items; carry ladders safely
+- Check-in arrangement when working alone`}}
+];
+const REVIEW=`- Workers read this SWMS before starting and can ask questions
+- A pre-start check is done at every job to confirm controls for that home
+- If the controls can't be followed, work stops until it can be done safely
+- Reviewed and updated if the work or site changes, after an incident or near miss, or if a control doesn't work
+- Kept on site (phone or paper) until the work is finished; copy given to the builder or business you're working for on request`;
+$('#acts').innerHTML=ACTS.map(a=>`<div class="act"><label class="tg"><input type="checkbox" data-act="${a.id}"><span>${a.title}</span></label>
+  <details style="margin:6px 0 0 33px"><summary>Review</summary><label class="f">Hazards</label><textarea id="h_${a.id}"></textarea>
+  <label class="f">Controls</label><textarea id="c_${a.id}" style="min-height:190px"></textarea></details></div>`).join('')
+  +`<div class="act"><details><summary>How it's implemented &amp; reviewed</summary><textarea id="s_review" style="min-height:150px;margin-top:6px"></textarea></details></div>`;
+const allText=v=>typeof v==='string'?[v]:Object.values(v);
+// Set ticks and example text for the trade. Text the user has edited is kept.
+function applyTradeToSwms(){
+  ACTS.forEach(a=>{document.querySelector(`[data-act="${a.id}"]`).checked=a.on.includes(trade);
+    [['h_',a.h],['c_',a.c]].forEach(([px,v])=>{const el=$('#'+px+a.id);if(!el.value.trim()||allText(v).includes(el.value))el.value=pick(v);});});
+}
+$('#s_review').value=REVIEW;
+const sw=store.get('tk_workers');if(sw)$('#s_workers').value=sw;
+
+/* ---------- My licences & tickets ---------- */
+const ALL=['elec','plumb','carp'];
+const TICKETS=[
+ ['lic_e','Electrical licence (A-grade or restricted)','Licence no.',['elec']],
+ ['rec','Registered electrical contractor (REC)','REC no.',['elec']],
+ ['lic_p','Plumbing registration / licence (incl. gasfitting)','Registration no.',['plumb']],
+ ['build','Builder registration (e.g. limited to carpentry)','Registration no.',['carp']],
+ ['white','White card (construction induction)','Card no.',ALL],
+ ['heights','Working at heights','Certificate no.',ALL],
+ ['cs','Confined space entry','Certificate no.',['plumb']],
+ ['asb','Asbestos awareness or removal','Certificate / licence no.',ALL],
+ ['fa','First aid','Certificate no.',ALL],
+ ['other','Other','Name / no.',ALL]
+];
+$('#tk-list').innerHTML=TICKETS.map(([k,label,ph])=>`<div class="tk" data-tk="${k}"><label class="f" for="tk_${k}">${label}</label>
+  <input type="text" id="tk_${k}" placeholder="${ph}"><input type="month" id="tkx_${k}" aria-label="${label} expiry">
+  <div class="exp" id="tke_${k}"></div></div>`).join('');
+function tkExp(k){const v=$('#tkx_'+k).value,el=$('#tke_'+k);el.className='exp';el.textContent='';if(!v)return;
+  const [y,m]=v.split('-').map(Number), end=new Date(y,m,0,23,59), days=Math.round((end-new Date())/864e5);
+  if(days<0){el.className='exp bad';el.textContent='Expired — renew before you use it on a job.';}
+  else if(days<=60){el.className='exp warn';el.textContent=`Expires in ${days} day${days===1?'':'s'} — time to renew.`;}}
+TICKETS.forEach(([k])=>{ ['tk_','tkx_'].forEach(px=>{const el=$('#'+px+k),v=store.get('tk_t_'+px+k);if(v)el.value=v;
+  el.addEventListener('change',()=>{store.set('tk_t_'+px+k,el.value.trim());tkExp(k);});}); tkExp(k); });
+const tradeTickets=()=>TICKETS.filter(t=>t[3].includes(trade));
+function renderTickets(){TICKETS.forEach(([k,,,tr])=>document.querySelector(`[data-tk="${k}"]`).classList.toggle('hidden',!tr.includes(trade)));}
+function ticketData(){return tradeTickets().map(([k,label])=>{const no=$('#tk_'+k).value.trim(),exp=$('#tkx_'+k).value;
+  if(!no&&!exp)return null;let expLabel='';if(exp){const [y,m]=exp.split('-').map(Number);expLabel=new Date(y,m-1,1).toLocaleDateString('en-AU',{month:'short',year:'numeric'});}
+  return{label,no,exp,expLabel};}).filter(Boolean);}
+
+/* ---------- Trade switch (both tabs) ---------- */
+function setTrade(t,user){ trade=t; store.set('tk_trade',t); document.body.dataset.trade=t;
+  $$('.jt button').forEach(b=>{const on=b.dataset.trade===t;b.classList.toggle('on',on);b.setAttribute('aria-pressed',on?'true':'false');});
+  renderQs(); renderChecks(); applyTradeToSwms(); renderTickets();
+  if(user) msg(`Set up for ${TRADES[t].toLowerCase()} work.`,'ok'); }
+$$('.jt button').forEach(b=>b.addEventListener('click',()=>setTrade(b.dataset.trade,true)));
+setTrade(trade,false);
+if(tradeTickets().some(([k])=>{const e=$('#tke_'+k);return e&&e.textContent;})) $('#tickets').open=true;
+renderState();
+
+function swmsData(){const n=new Date();
+  return{business:$('#s_business').value.trim(),preparer:$('#s_preparer').value.trim(),phone:$('#s_phone').value.trim(),
+    site:$('#s_site').value.trim()||'Various residential sites',pc:$('#s_pc').value.trim(),job:TRADENAME(),tickets:ticketData(),
+    activity:ACTIVITY[trade],
+    date:n.toLocaleDateString('en-AU',{dateStyle:'medium'}),iso:`${n.getFullYear()}-${pad(n.getMonth()+1)}-${pad(n.getDate())}`,
+    acts:ACTS.filter(a=>document.querySelector(`[data-act="${a.id}"]`).checked).map(a=>({id:a.id,title:a.title,h:$('#h_'+a.id).value.trim(),c:$('#c_'+a.id).value.trim()})),
+    review:$('#s_review').value.trim(),workers:$('#s_workers').value.split('\n').map(s=>s.trim()).filter(Boolean)};}
+function swmsValidate(){const m=[],d=swmsData();if(!d.business)m.push('business name');if(!d.preparer)m.push('your name');
+  if(!d.acts.length)m.push('at least one type of work');if(!pads.s_sig.has)m.push('signature');return m;}
+function swmsText(d){let t=`SWMS — ${d.business} (${ST().code}, ${d.job})\nPrepared ${d.date} by ${d.preparer}${d.phone?' ('+d.phone+')':''}\nCovers: ${d.acts.map(a=>a.title).join('; ')}\n`;
+  if(d.workers.length)t+=`Workers: ${d.workers.join(', ')}\n`;t+=`\nFull SWMS attached as PDF.\n\n— Free guidance tool for residential work. The business doing the work is responsible for reviewing this SWMS and meeting their own legal obligations.`;return t;}
+
+/* =================== PDF =================== */
+const NAVY=[31,58,95];
+function base(title,right){const{jsPDF}=window.jspdf;const doc=new jsPDF({unit:'mm',format:'a4'});doc.setFillColor(...NAVY);doc.rect(0,0,210,24,'F');
+  doc.setTextColor(255);doc.setFontSize(16);doc.setFont(undefined,'bold');doc.text(title,14,15);doc.setFont(undefined,'normal');doc.setFontSize(9);doc.text(right,196,15,{align:'right'});
+  doc.setTextColor(30);doc.setFontSize(10);return doc;}
+function footer(doc){const n=doc.getNumberOfPages();for(let p=1;p<=n;p++){doc.setPage(p);doc.setFontSize(7);doc.setTextColor(120);doc.text(doc.splitTextToSize(SHORT_DISC,160),14,282);doc.text(`Page ${p} of ${n}`,196,282,{align:'right'});}}
+function kit(doc){const M=14,W=210,o={y:32};
+  o.check=n=>{if(o.y+n>274){doc.addPage();o.y=16;}};
+  o.kv=(k,v)=>{if(!v)return;const l=doc.splitTextToSize(v,W-M*2-44);o.check(5*l.length);doc.setFont(undefined,'bold');doc.text(k,M,o.y);doc.setFont(undefined,'normal');doc.text(l,M+44,o.y);o.y+=5*l.length;};
+  o.h=t=>{o.check(12);o.y+=3;doc.setFont(undefined,'bold');doc.setFontSize(11);doc.setTextColor(...NAVY);doc.text(t,M,o.y);doc.setTextColor(30);doc.setFontSize(9.5);doc.setFont(undefined,'normal');o.y+=5.5;};
+  o.para=(v,b)=>{if(!v)return;doc.setFont(undefined,b?'bold':'normal');doc.splitTextToSize(v,W-M*2).forEach(line=>{o.check(5);doc.text(line,M,o.y);o.y+=4.5;});o.y+=1.5;doc.setFont(undefined,'normal');};
+  o.box=(title,lines,warn)=>{const h=8+lines.length*5;o.check(h+2);o.y+=2;warn?doc.setFillColor(253,238,228):doc.setFillColor(232,243,236);doc.rect(M,o.y,W-M*2,h,'F');
+    warn?doc.setTextColor(154,52,18):doc.setTextColor(21,128,61);doc.setFont(undefined,'bold');doc.text(title,M+3,o.y+5.5);doc.setFont(undefined,'normal');
+    lines.forEach((x,i)=>doc.text('• '+x,M+3,o.y+10.5+i*5));o.y+=h+2;doc.setTextColor(30);};
+  o.sig=(id,label)=>{const p=pads[id],r=p.cv.getBoundingClientRect(),sw=70,sh=sw*(r.height||140)/(r.width||400);o.check(sh+10);
+    doc.addImage(p.cv.toDataURL('image/png'),'PNG',M,o.y,sw,sh);o.y+=sh+1;doc.line(M,o.y,M+sw,o.y);o.y+=4;doc.setFontSize(8.5);doc.text(label,M,o.y);doc.setFontSize(9.5);o.y+=6;};
+  return o;}
+function prePDF(d){const doc=base('Pre-Start Safety Check',d.when),o=kit(doc);
+  o.kv('Contractor',d.name);o.kv('Business',d.company);o.kv('Site',d.site);o.kv('State',ST().name);o.kv('Trade',d.job);o.kv('Setting','Residential');o.kv('Job no.',d.jobref);
+  const hr=hrcwList();
+  if(hr.length)o.box('High-risk construction work — SWMS required',hr,true);else o.box('No high-risk construction work identified',['Standard checks apply'],false);
+  ['asbestos','live','gas','trench','confined','structural','silica'].forEach(k=>{if(isYes(k))o.para($('#a-'+k).textContent.trim());});
+  o.h('Job involves');d.hr.forEach(x=>o.para(`${x.a}  —  ${x.q}`));
+  o.h('Checks');d.checks.forEach(c=>{doc.setTextColor(...(c.ok?[21,128,61]:[185,28,28]));o.para((c.ok?'Done  ':'NOT DONE  ')+c.t);});doc.setTextColor(30);
+  if(d.other){o.h('Other hazards & controls');o.para(d.other);}
+  o.h('Sign off');o.para("I confirm the checks above are done, the controls are in place, I'm fit for work, and I'll stop work if conditions change or something isn't safe.");
+  o.sig('p_sig',`Signed: ${d.name}  ·  ${d.when}`);
+  if(photo){doc.addPage();doc.setFont(undefined,'bold');doc.setFontSize(11);doc.text('Site photo',14,16);const s=Math.min(182/photo.w,250/photo.h);doc.addImage(photo.data,'JPEG',14,22,photo.w*s,photo.h*s);}
+  footer(doc);return doc;}
+function swmsPDF(d){const doc=base('Safe Work Method Statement','High-risk construction work'),o=kit(doc);
+  o.kv(ST().duty,d.business);o.kv('State',ST().name);o.kv('Legislation',ST().law);o.kv('Prepared by',d.preparer);o.kv('Phone',d.phone);o.kv('Date',d.date);o.kv('Trade',d.job);o.kv('Location',d.site);o.kv('Builder / PC',d.pc);o.kv('Work activity',d.activity);
+  o.box('High-risk construction work covered',d.acts.map(a=>a.title),true);
+  d.acts.forEach(a=>{o.h(a.title);o.para('Hazards and risks',true);o.para(a.h);o.para('Control measures',true);o.para(a.c);if(a.id==='silica')o.para(ST().silica);});
+  o.h('How controls are implemented, monitored and reviewed');o.para(d.review);
+  if(d.tickets.length){o.h('Licences & tickets');d.tickets.forEach(t=>o.para(`${t.label}: ${t.no||'held'}${t.exp?'  ·  expires '+t.expLabel:''}`));}
+  o.h('Workers');o.para(d.workers.length?d.workers.join(', '):'—');
+  o.h('Sign off');o.para("I've reviewed and edited this SWMS for the work it covers, it reflects how the work will be done, and the workers listed have read it and been consulted. This SWMS was prepared using general example content from SafeTradie; the business named above is responsible for its content.");
+  o.sig('s_sig',`Signed: ${d.preparer}  ·  ${d.date}`);footer(doc);return doc;}
+
+/* =================== Actions =================== */
+let downloads=null;if(window.claude&&claude.use)claude.use('downloads').then(x=>{downloads=x;}).catch(()=>{});
+const safe=s=>(s||'').replace(/[^\w\- ]+/g,'').trim().replace(/\s+/g,'-').slice(0,40)||'site';
+function cur(){
+  if(view==='pre'){const d=preData();return{miss:preValidate(),text:()=>preText(d)+(attached?`\n\nSWMS attached: ${attached.fname}`:''),pdf:()=>prePDF(d),fname:`PreStart_${safe(d.site)}_${d.date}.pdf`,
+    extra:attached?[attached]:[],
+    subject:`${attached?'Pre-start + SWMS':'Pre-start'}: ${d.site} – ${d.when}`,me:$('#p_myemail').value.trim(),cc:$('#p_ccemail').value.trim(),save:()=>remember('p_')};}
+  const d=swmsData();return{extra:[],miss:swmsValidate(),text:()=>swmsText(d),pdf:()=>swmsPDF(d),fname:`SWMS_${safe(d.business)}_${d.iso}.pdf`,
+    subject:`SWMS: ${d.business}`,me:$('#s_myemail').value.trim(),cc:$('#s_ccemail').value.trim(),save:()=>{remember('s_');store.set('tk_workers',$('#s_workers').value.trim());}};}
+function b64Blob(b64){const bin=atob(b64),a=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)a[i]=bin.charCodeAt(i);return new Blob([a],{type:'application/pdf'});}
+$('#b_add').addEventListener('click',()=>{const c=cur();if(c.miss.length){msg('Still needed: '+c.miss.join('; '),'err');return;}c.save();
+  if(!window.jspdf){msg("PDF tool didn't load — check your connection and try again.",'err');return;}
+  try{ attached={fname:c.fname,pdf:c.pdf().output('datauristring').split(',')[1]}; }catch(e){msg("Couldn't build the SWMS PDF.",'err');return;}
+  checked.swms=true; renderChecks(); show('pre');
+  setTimeout(()=>{const el=$('#a-attached'); if(el&&el.scrollIntoView) el.scrollIntoView({block:'center'}); msg("SWMS added ✓ — sign and send your pre-start; both go in one email.",'ok');},60);
+});
+$('#detach').addEventListener('click',e=>{e.preventDefault();attached=null;renderChecks();msg('SWMS removed from this pre-start.');});
+$('#clear-saved').addEventListener('click',()=>{
+  try{Object.keys(localStorage).filter(k=>k.startsWith('tk_')&&k!=='tk_terms3').forEach(k=>localStorage.removeItem(k));}catch(e){}
+  Object.keys(REM).concat(['s_workers']).forEach(id=>{const el=$('#'+id);if(el)el.value='';});
+  TICKETS.forEach(([k])=>{$('#tk_'+k).value='';$('#tkx_'+k).value='';tkExp(k);});
+  msg('Saved details cleared from this device.','ok');
+});
+$('#ov-close').addEventListener('click',()=>$('#ov').classList.remove('show'));
+$('#ov-copy').addEventListener('click',async()=>{try{await navigator.clipboard.writeText($('#ov-txt').value);$('#ov-copy').textContent='Copied';setTimeout(()=>$('#ov-copy').textContent='Copy text',1500);}catch(e){$('#ov-txt').select();}});
+$('#b_pdf').addEventListener('click',async()=>{const c=cur();if(c.miss.length){msg('Still needed: '+c.miss.join('; '),'err');return;}c.save();
+  if(!window.jspdf){msg("PDF tool didn't load — tap Send instead.",'err');return;}
+  if(!downloads){try{c.pdf().save(c.fname);(c.extra||[]).forEach(x=>{const u=URL.createObjectURL(b64Blob(x.pdf));const a=document.createElement('a');a.href=u;a.download=x.fname;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000);});msg((c.extra||[]).length?'Both PDFs saved to your downloads. Tap Send to email them.':'PDF saved to your downloads. Tap Send to email it.','ok');swmsDone();}catch(e){msg("Couldn't save the PDF — tap Send instead.",'err');}return;}
+  try{await downloads.save({filename:c.fname,data:c.pdf().output('blob')});msg('Saved. Tap Send to email it.','ok');swmsDone();}
+  catch(e){if(e&&e.code==='declined')msg('Save cancelled.');else if(e&&e.code==='rate_limited')msg('One moment, then try again.');else msg("Couldn't save here — tap Send instead.",'err');}});
+const EMAIL_RE=/^[^\s@,;<>]+@[^\s@,;<>]+\.[^\s@,;<>]+$/;
+let sending=false, failReason='';
+$('#b_send').addEventListener('click',async()=>{const c=cur();if(c.miss.length){msg('Still needed: '+c.miss.join('; '),'err');return;}
+  if(!c.me&&!c.cc){msg('Add an email under "Send a copy to".','err');return;}
+  const bad=[c.me,c.cc].filter(Boolean).filter(e=>!EMAIL_RE.test(e));if(bad.length){msg('Check this email address: '+bad.join(', '),'err');return;}
+  c.save();
+  const rcpt=[...new Set([c.me,c.cc].filter(Boolean).map(e=>e.toLowerCase()))];const to=rcpt.join(',');const t=c.text();
+  // 1) Send automatically through the SafeTradie email service
+  if(sending) return; sending=true; const btn=$('#b_send'); btn.textContent='Sending…'; btn.disabled=true;
+  try{
+    if(!window.jspdf) throw new Error('nopdf');
+    const pdf=c.pdf().output('datauristring').split(',')[1];
+    const r=await fetch('/api/send',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({to:rcpt,replyTo:c.me||'',subject:c.subject,text:t.replace(/\n\n— Free guidance tool[\s\S]*$/,''),filename:c.fname,pdf,extra:(c.extra||[]).map(x=>({filename:x.fname,pdf:x.pdf})),website:''})});
+    const j=await r.json().catch(()=>({}));
+    if(!r.ok||!j.ok) throw new Error(r.status===404?'Email service not deployed':(j.error||('Error '+r.status)));
+    msg('Sent ✓ — '+((c.extra||[]).length?'both PDFs':'PDF')+' emailed to '+to.replace(/,/g,', '),'ok');swmsDone();
+    return;
+  }catch(e){ failReason=(navigator.onLine===false)?'no signal — tap Save PDF now and send when you have signal':(e&&e.message==='nopdf')?'PDF tool did not load':(e&&e.message&&!/fetch|network|Failed/i.test(e.message)?e.message:'No connection to the email service'); }
+  finally{ sending=false; btn.textContent='Send'; btn.disabled=false; }
+  // 2) Fallback: the phone's own mail app
+  let file=null;
+  try{ if(window.jspdf&&navigator.canShare&&window.File){ const f=[new File([c.pdf().output('blob')],c.fname,{type:'application/pdf'})].concat((c.extra||[]).map(x=>new File([b64Blob(x.pdf)],x.fname,{type:'application/pdf'}))); if(navigator.canShare({files:f})) file=f; } }catch(e){}
+  const href=`mailto:${to}?subject=${encodeURIComponent(c.subject)}&body=${encodeURIComponent(t.slice(0,1800))}`;
+  $('#ov-body').innerHTML=`<p><b>Couldn't send automatically</b>${failReason?` (${failReason.replace(/[<>&]/g,'')})`:''}. Send it from your mail app instead — <b>check the To line, then tap Send</b>.</p>
+    ${file?`<div class="row"><button type="button" class="btn p" id="ov-share">Email the PDF${c.extra&&c.extra.length?'s':''}</button></div>
+    <p class="foot" style="padding:0;margin-top:4px">Pick Mail in the share menu. The email addresses are copied — paste them into the To line.</p>`:''}
+    <div class="row"><a class="btn ${file?'s':'p'}" id="ov-mailto" href="${href.replace(/"/g,'&quot;')}">Email the summary${file?' (no PDF)':''}</a></div>
+    <p class="foot" style="padding:0;margin-top:4px">Addresses filled in for you.${file?'':' To attach the PDF, tap Save PDF first, then attach it.'}</p>
+    <p class="foot" style="padding:0;margin-top:10px">Send to:</p><div class="mailbox"></div>`;
+  $('#ov-body .mailbox').textContent=to.replace(/,/g,', ');$('#ov-txt').value=t;$('#ov').classList.add('show');
+  if(file) $('#ov-share').addEventListener('click',async()=>{
+    try{ navigator.clipboard&&navigator.clipboard.writeText(to.replace(/,/g,', ')).catch(()=>{}); }catch(e){}
+    try{ await navigator.share({files:file,title:c.subject,text:c.subject}); $('#ov').classList.remove('show'); msg(`Check it went to: ${to.replace(/,/g,', ')}`,'ok');swmsDone(); }
+    catch(e){ if(!(e&&e.name==='AbortError')) msg("Couldn't open the share menu — use Email the summary instead.",'err'); }
+  });
+});
+
+/* ---------- Home-screen app ---------- */
+try{ if('serviceWorker' in navigator && location.protocol==='https:' && window.top===window.self){ window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(()=>{})); } }catch(e){}
+(function(){
+  const standalone = (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
+  const ua = navigator.userAgent || '';
+  const isIOS = /iPhone|iPad|iPod/i.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
+  const touch = (navigator.maxTouchPoints||0) > 0;
+  const isAndroid = /Android/i.test(ua) || (/Linux|CrOS/i.test(ua) && touch);  // Android tablets often ask for the desktop site
+  const inFrame = (()=>{ try{ return window.top!==window.self; }catch(e){ return true; } })();
+  const box = document.getElementById('install'), how = document.getElementById('install-how');
+  if (!box || standalone || inFrame || store.get('tk_install_x')==='1') return;
+  let deferred=null;
+  const showInstallButton = () => { how.textContent='Opens full screen and works without signal.'; document.getElementById('install-btn-row').classList.remove('hidden'); box.classList.remove('hidden'); };
+  // Chrome/Edge/Samsung say when the site can be installed — show the one-tap button on any touch device
+  window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferred=e; if (touch || isIOS || isAndroid) showInstallButton(); });
+  if (!(isIOS||isAndroid)) {
+    document.getElementById('install-btn').addEventListener('click', async () => { if(!deferred) return; deferred.prompt(); try{ const r=await deferred.userChoice; if(r&&r.outcome==='accepted') box.classList.add('hidden'); }catch(e){} deferred=null; });
+    document.getElementById('install-x').addEventListener('click', () => { box.classList.add('hidden'); store.set('tk_install_x','1'); });
+    window.addEventListener('appinstalled', () => box.classList.add('hidden'));
+    return;
+  }
+  const share = '<svg class="ico" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="M8 7l4-4 4 4"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg>';
+  if (isIOS && !/Safari/i.test(ua) || /CriOS|FxiOS|EdgiOS/i.test(ua)) how.innerHTML = 'Opens full screen and works without signal. Open <b style="display:inline">'+location.host+'</b> in <b style="display:inline">Safari</b>, tap '+share+' <b style="display:inline">Share</b>, then <b style="display:inline">Add to Home Screen</b>.';
+  else if (isIOS) how.innerHTML = 'Opens full screen and works without signal. In <b style="display:inline">Safari</b>, tap '+share+' <b style="display:inline">Share</b>, then <b style="display:inline">Add to Home Screen</b>.';
+  else how.innerHTML = 'Opens full screen and works without signal. In Chrome, tap <b style="display:inline">⋮</b> (top right), then <b style="display:inline">Install app</b> or <b style="display:inline">Add to Home screen</b>.';
+  box.classList.remove('hidden');
+  document.getElementById('install-btn').addEventListener('click', async () => {
+    if(!deferred) return; deferred.prompt();
+    try{ const r=await deferred.userChoice; if(r&&r.outcome==='accepted') box.classList.add('hidden'); }catch(e){}
+    deferred=null;
+  });
+  window.addEventListener('appinstalled', () => box.classList.add('hidden'));
+  document.getElementById('install-x').addEventListener('click', () => { box.classList.add('hidden'); store.set('tk_install_x','1'); });
+})();
+
+/* ---------- How it works ---------- */
+(function(){
+  const ov=$('#how-ov'), scr=$('#how-screen'), cap=$('#how-cap'), prog=$('#how-prog'), next=$('#how-next'), back=$('#how-back');
+  const hd=(tab)=>`<div class="ph-hd">Safe<span>Tradie</span><div class="ph-tabs"><i class="${tab==='pre'?'on':''}">Pre-start</i><i class="${tab==='swms'?'on':''}">My SWMS</i><i>Resources</i></div></div>`;
+  const d=(s)=>`style="animation-delay:${s}s"`;
+  const q=(t,yes,delay)=>`<div class="ph-q"><span>${t}</span><span class="ph-seg"><i class="${yes?'y':''}" ${yes?d(delay):''}>Yes</i><i class="${yes?'':'n'}" ${yes?'':d(delay)}>No</i></span></div>`;
+  const ck=(t,delay)=>`<div class="ph-ck"><span class="ph-box" ${d(delay)}>✓</span><span>${t}</span></div>`;
+  const STEPS=[
+    {cap:'<b>1. Start the job.</b> Pop in your name and the site address. Your details are remembered for next time.',
+     html:()=>hd('pre')+`<div class="ph-body"><div class="ph-card"><div class="ph-t">1 · Job</div>
+       <div class="ph-l">Your name</div><div class="ph-in"><span class="ph-type" ${d(.4)}>Sam Sparks</span></div>
+       <div class="ph-l">Site address</div><div class="ph-in"><span class="ph-type" ${d(1.8)}>14 Gum Tree Ct, Boneo</span></div></div></div>`},
+    {cap:'<b>2. Answer a few quick questions.</b> They\'re set up for your trade. Going in the roof? Tap Yes, and it flags that you need a SWMS.',
+     html:()=>hd('pre')+`<div class="ph-body"><div class="ph-card"><div class="ph-t">2 · Today's job involves…</div>
+       ${q('Ceiling / roof space',true,1.2)}${q('Fall over 2 m',false,.4)}${q('Possible asbestos',false,.6)}${q('Near live electrical',false,.8)}</div>
+       <div class="ph-alert" ${d(2)}><b>High-risk work — you need a SWMS.</b> Make one now ›</div></div>`},
+    {cap:'<b>3. Run through the checks.</b> Tick each one, or hit Tick all on a normal day.',
+     html:()=>hd('pre')+`<div class="ph-body"><div class="ph-card"><div class="ph-t" style="display:flex;justify-content:space-between;align-items:center">3 · Checks <span class="ph-pill" ${d(.6)}>Tick all</span></div>
+       ${ck('Ladder suitable, firm level ground',.9)}${ck('Checked for cables and pipes',1.05)}${ck('Locked out and tested for dead',1.2)}${ck('Stay on joists, good lighting',1.35)}${ck('Heat OK, water on hand',1.5)}${ck('Fit for work',1.65)}</div></div>`},
+    {cap:'<b>4. Make your SWMS once.</b> It comes pre-filled for your trade. Check it, sign it, done.',
+     html:()=>hd('swms')+`<div class="ph-body"><div class="ph-card"><div class="ph-t">Work covered</div>
+       ${ck('Falls over 2 m, incl. roofs',.5)}${ck('Near energised electrical',.8)}${ck('Work likely to disturb asbestos',1.1)}${ck('Silica dust',1.4)}</div>
+       <div class="ph-sig"><svg viewBox="0 0 200 70" width="100%" height="70" aria-hidden="true"><path ${d(2)} d="M14 46 C30 18 40 18 44 40 S58 60 66 34 S82 14 88 40 C92 54 104 54 112 36 C118 24 126 26 128 40 C132 52 146 50 156 34 L186 30"/></svg></div></div>`},
+    {cap:'<b>5. Tap Add to pre-start.</b> Your SWMS goes back with you, ready to send together.',
+     html:()=>hd('swms')+`<div class="ph-body"><div class="ph-card"><div class="ph-t">My SWMS</div>
+       ${ck('Falls over 2 m, incl. roofs',0)}${ck('Near energised electrical',0)}${ck('Work likely to disturb asbestos',0)}<div class="ph-l">Signed ✓</div></div>
+       <div class="ph-ok" ${d(1.9)}>SWMS attached ✓ — it'll be emailed with your pre-start</div></div>
+       <div class="ph-bar"><span class="ph-btn s">Save PDF</span><span class="ph-btn" ${d(1)}>Add to pre-start</span></div>`},
+    {cap:'<b>6. Sign and tap Send.</b> One email with both PDFs goes to you and the business you\'re working for. Done.',
+     html:()=>hd('pre')+`<div class="ph-body"><div class="ph-card"><div class="ph-t">4 · Sign</div>
+       <div class="ph-sig"><svg viewBox="0 0 200 70" width="100%" height="70" aria-hidden="true"><path ${d(.3)} d="M14 46 C30 18 40 18 44 40 S58 60 66 34 S82 14 88 40 C92 54 104 54 112 36 C118 24 126 26 128 40 C132 52 146 50 156 34 L186 30"/></svg></div></div>
+       <div class="ph-card"><div class="ph-t">5 · Send a copy to</div><div class="ph-in">sam@example.com</div><div class="ph-in" style="margin-top:4px">jobs@example.com.au</div></div>
+       <div class="ph-toast" ${d(2.8)}>Sent ✓ — both PDFs emailed</div></div>
+       <div class="ph-bar"><span class="ph-btn" ${d(2.1)}>Send</span><span class="ph-btn s">Save PDF</span></div>`}
+  ];
+  const STEP_MS=5000; let i=0, timer=null, open=false;
+  function render(){
+    scr.innerHTML=STEPS[i].html(); cap.innerHTML=STEPS[i].cap;
+    back.disabled=i===0; next.textContent=i===STEPS.length-1?'Start a pre-start':'Next';
+    prog.style.transition='none'; prog.style.width=(i/STEPS.length*100)+'%'; void prog.offsetWidth;
+    prog.style.transition='width '+STEP_MS+'ms linear'; prog.style.width=((i+1)/STEPS.length*100)+'%';
+    clearTimeout(timer); if(i<STEPS.length-1) timer=setTimeout(()=>{i++;render();},STEP_MS);
+  }
+  function openHow(){ if(open) return; open=true; i=0; ov.classList.add('show'); render(); try{ if(location.hash!=='#how') history.replaceState(null,'','#how'); }catch(e){} }
+  function closeHow(start){ open=false; clearTimeout(timer); ov.classList.remove('show'); try{ if(location.hash==='#how') history.replaceState(null,'',location.pathname+location.search); }catch(e){} if(start){ show('pre'); } }
+  $('#how-open').addEventListener('click',e=>{e.preventDefault();openHow();});
+  $('#how-x').addEventListener('click',()=>closeHow(false));
+  $('#how-skip').addEventListener('click',e=>{e.preventDefault();closeHow(true);});
+  next.addEventListener('click',()=>{ if(i<STEPS.length-1){i++;render();} else closeHow(true); });
+  back.addEventListener('click',()=>{ if(i>0){i--;render();} });
+  ov.addEventListener('click',e=>{ if(e.target===ov) closeHow(false); });
+  document.addEventListener('keydown',e=>{ if(open&&e.key==='Escape') closeHow(false); });
+  window.addEventListener('hashchange',()=>{ if(location.hash==='#how') openHow(); });
+  if(location.hash==='#how'){ if($('#gate').classList.contains('show')){ $('#gate-go').addEventListener('click',()=>setTimeout(openHow,150),{once:true}); } else openHow(); }
+})();
+})();
+</script>
+</body>
+</html>

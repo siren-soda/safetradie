@@ -1,0 +1,42 @@
+name: Weekly link check
+
+# Checks every link on SafeTradie once a week (Monday ~9am Melbourne time).
+# If any are broken, it opens a GitHub issue in this repo, and GitHub emails you about it.
+on:
+  schedule:
+    - cron: "0 22 * * 0"
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  links:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check links
+        id: lychee
+        uses: lycheeverse/lychee-action@v2
+        with:
+          args: >-
+            --no-progress
+            --max-retries 3
+            --timeout 30
+            --user-agent "Mozilla/5.0 (compatible; SafeTradie link check)"
+            --accept 200..=299,403,429
+            --exclude "^mailto:"
+                        --exclude "fonts\\.googleapis\\.com"
+            index.html
+          output: ./lychee-report.md
+          fail: false
+
+      - name: Open an issue if anything is broken
+        if: steps.lychee.outputs.exit_code != 0
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          title="Broken links found on SafeTradie ($(date +%d-%b-%Y))"
+          gh issue create --title "$title" --body-file ./lychee-report.md
