@@ -903,7 +903,7 @@ const NAVY=[31,58,95];
 function base(title,right){const{jsPDF}=window.jspdf;const doc=new jsPDF({unit:'mm',format:'a4'});doc.setFillColor(...NAVY);doc.rect(0,0,210,24,'F');
   doc.setTextColor(255);doc.setFontSize(16);doc.setFont(undefined,'bold');doc.text(title,14,15);doc.setFont(undefined,'normal');doc.setFontSize(9);doc.text(right,196,15,{align:'right'});
   doc.setTextColor(30);doc.setFontSize(10);return doc;}
-function footer(doc){const n=doc.getNumberOfPages();for(let p=1;p<=n;p++){doc.setPage(p);doc.setFontSize(7);doc.setTextColor(120);doc.text(doc.splitTextToSize(SHORT_DISC,160),14,282);doc.text(`Page ${p} of ${n}`,196,282,{align:'right'});}}
+function footer(doc){const n=doc.getNumberOfPages();for(let p=1;p<=n;p++){doc.setPage(p);doc.setDrawColor(210);doc.setLineWidth(0.2);doc.line(14,276,196,276);doc.setFont('helvetica','bold');doc.setFontSize(7.5);doc.setTextColor(...NAVY);const pr='Made with SafeTradie — free pre-start and SWMS tool for trades · ';doc.text(pr,14,279.5);doc.setTextColor(232,119,34);doc.textWithLink('safetradie.installhub.org',14+doc.getTextWidth(pr),279.5,{url:'https://safetradie.installhub.org/?ref=pdf'});doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(120);doc.text(doc.splitTextToSize(SHORT_DISC,160),14,283);doc.text(`Page ${p} of ${n}`,196,283,{align:'right'});}}
 function kit(doc){const M=14,W=210,o={y:32};
   o.check=n=>{if(o.y+n>274){doc.addPage();o.y=16;}};
   o.kv=(k,v)=>{if(!v)return;const l=doc.splitTextToSize(v,W-M*2-44);o.check(5*l.length);doc.setFont(undefined,'bold');doc.text(k,M,o.y);doc.setFont(undefined,'normal');doc.text(l,M+44,o.y);o.y+=5*l.length;};
