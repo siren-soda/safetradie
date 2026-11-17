@@ -337,12 +337,12 @@
 <section>
   <h2>About this tool</h2>
   <p class="foot" style="padding:0" id="disc-text"></p>
-  <p class="foot" style="padding:0;margin-top:6px"><a href="#" id="disc-open">Terms of use</a> · <a href="#privacy">Privacy</a></p>
+  <p class="foot" style="padding:0;margin-top:6px"><a href="#" id="disc-open">Key terms</a> · <a href="https://installhub.org/terms/">Terms of use</a> · <a href="https://installhub.org/privacy/">Privacy policy</a> · Part of <a href="https://installhub.org">InstallHub</a></p>
 </section>
 
 <section id="privacy">
   <h2>Privacy</h2>
-  <p class="foot" style="padding:0">SafeTradie doesn't collect your information or use it for anything. What you enter stays on your device. Your name, contact details, licence numbers and state are saved in this browser so you don't have to retype them. Job answers, signatures and photos aren't saved once you start a new job. When you tap Send, the PDF and summary are emailed to the addresses you enter through our email delivery service (Resend). We don't keep a copy or use them for anything else; the delivery service keeps short-term sending records. Our web host (Netlify) keeps standard visit logs, such as IP addresses, like any website.</p>
+  <p class="foot" style="padding:0">SafeTradie doesn't collect your information or use it for anything. What you enter stays on your device. Your name, contact details, licence numbers and state are saved in this browser so you don't have to retype them. Job answers, signatures and photos aren't saved once you start a new job. When you tap Send, the PDF and summary are emailed to the addresses you enter through our email delivery service (Resend). We don't keep a copy or use them for anything else; the delivery service keeps short-term sending records. Our web host (Netlify) keeps standard visit logs, such as IP addresses, like any website. <a href="https://installhub.org/privacy/">Full privacy policy</a></p>
   <div class="row"><button type="button" class="btn s sm" id="clear-saved">Clear my saved details</button></div>
 </section>
 </main>
@@ -395,7 +395,7 @@ const msg=(t,c)=>{const m=$('#msg');m.textContent=t||'';m.className='msg'+(c?' '
 /* ---------- Terms ---------- */
 const SHORT_DISC="Free guidance tool for residential work only — not for commercial, industrial or large construction sites. It is not a substitute for your own due diligence, site-specific risk assessment, or professional, legal or safety advice, and using it does not mean you have met your legal obligations. You are responsible for the safety of your work, your licensing, and for meeting all OHS/WHS laws that apply to you. To the extent permitted by law, the provider accepts no liability for any loss, injury or damage arising from its use.";
 const FULL_DISC=`
-<p><b>This is a free guidance tool only.</b> It gives general information and example content to help electricians, plumbers, gasfitters and carpenters think through common hazards on residential jobs.</p>
+<p><b>This is a free guidance tool only.</b> It gives general information and example content to help electricians, plumbers, gasfitters and carpenters think through common hazards on residential jobs. SafeTradie is part of InstallHub, and the provider of this tool is InstallHub.</p>
 <ul>
 <li><b>Residential work only.</b> SafeTradie is designed for work in and around houses, units and townhouses. It is not designed for commercial, industrial or civil sites, or for large construction projects run by a principal contractor — those sites have extra hazards and requirements it doesn't cover.</li>
 <li><b>Not a substitute for your own due diligence.</b> It does not replace your own hazard identification, site-specific risk assessment, consultation with your workers, or professional, legal or safety advice.</li>
@@ -405,9 +405,10 @@ const FULL_DISC=`
 <li><b>No guarantee.</b> Using this tool or any document it produces does not mean you have complied with the law. Example content may be incomplete or unsuitable for your work or site — review and edit it before use.</li>
 <li><b>Laws differ by state.</b> SafeTradie shows guidance for the state or territory you pick (Victoria by default). Requirements differ between states and territories and change over time. Check requirements with your own regulator.</li>
 <li><b>Third-party links</b> are provided for convenience; their content is not controlled by the provider of this tool.</li>
-<li><b>Privacy.</b> What you enter stays on your device. If you tap Send, the PDF goes through our email delivery service to the addresses you enter, and we don't keep a copy.</li>
+<li><b>Privacy.</b> What you enter stays on your device. If you tap Send, the PDF goes through our email delivery service to the addresses you enter, and we don't keep a copy. See the <a href="https://installhub.org/privacy/" target="_blank" rel="noopener">privacy policy</a>.</li>
 <li><b>No liability.</b> To the extent permitted by law, the tool is provided "as is" and the provider excludes all liability for any loss, injury, damage, penalty or claim arising from use of, or reliance on, the tool or its output. Nothing here excludes rights you have under the Australian Consumer Law that can't be excluded.</li>
-</ul>`;
+</ul>
+<p>These are the key points. The full <a href="https://installhub.org/terms/" target="_blank" rel="noopener">terms of use</a> also apply.</p>`;
 $('#disc-text').textContent=SHORT_DISC; $('#gate-text').innerHTML=FULL_DISC;
 $('#gate-ok').addEventListener('change',e=>$('#gate-go').disabled=!e.target.checked);
 $('#gate-go').addEventListener('click',()=>{store.set('tk_terms3','1');$('#gate').classList.remove('show');});
