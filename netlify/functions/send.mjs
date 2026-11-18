@@ -1,7 +1,5 @@
 // SafeTradie email service: emails a pre-start or SWMS PDF to up to two addresses.
 // Preferred: Resend (env RESEND_API_KEY; optional MAIL_FROM, default "SafeTradie <noreply@safeinstall.org>" until SafeTradie has its own domain).
-// Fallback: Gmail app password (env GMAIL_USER, GMAIL_APP_PASSWORD).
-import nodemailer from "nodemailer";
 
 const EMAIL_RE = /^[^\s@,;<>"]+@[^\s@,;<>"]+\.[^\s@,;<>"]+$/;
 const MAX_TOTAL_BYTES = 4 * 1024 * 1024; // 4 MB across all PDFs (Netlify request limit is 6 MB)
@@ -18,9 +16,9 @@ export default async (req) => {
     return json(403, { ok: false, error: "Not allowed" });
   }
 
-  const { RESEND_API_KEY, GMAIL_USER, GMAIL_APP_PASSWORD } = process.env;
+  const { RESEND_API_KEY } = process.env;
   const MAIL_FROM = process.env.MAIL_FROM || "SafeTradie <noreply@safeinstall.org>";
-  if (!RESEND_API_KEY && !(GMAIL_USER && GMAIL_APP_PASSWORD)) return json(503, { ok: false, error: "Email not set up" });
+  if (!RESEND_API_KEY) return json(503, { ok: false, error: "Email not set up" });
 
   let data;
   try { data = await req.json(); } catch { return json(400, { ok: false, error: "Bad request" }); }
@@ -57,7 +55,7 @@ export default async (req) => {
     "\nThe contractor is responsible for their own safety and legal compliance." +
     (replyTo ? `\nReplies go to ${replyTo}.` : "");
 
-  if (RESEND_API_KEY) {
+  {
     try {
       const r = await fetch("https://api.resend.com/emails", {
         method: "POST",
@@ -82,24 +80,6 @@ export default async (req) => {
     }
   }
 
-  try {
-    const transport = nodemailer.createTransport({
-      service: "gmail",
-      auth: { user: GMAIL_USER, pass: GMAIL_APP_PASSWORD },
-    });
-    await transport.sendMail({
-      from: `SafeTradie <${GMAIL_USER}>`,
-      to,
-      replyTo,
-      subject,
-      text,
-      attachments: files.map((f) => ({ filename: f.filename, content: f.content, contentType: "application/pdf" })),
-    });
-    return json(200, { ok: true });
-  } catch (err) {
-    console.error("send failed:", err && err.message);
-    return json(502, { ok: false, error: "Email failed to send" });
-  }
 };
 
 export const config = { path: "/api/send" };

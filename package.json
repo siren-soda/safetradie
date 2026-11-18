@@ -2,8 +2,5 @@
   "name": "safetradie",
   "private": true,
   "type": "module",
-  "description": "Free pre-start and SWMS tool for residential trades",
-  "dependencies": {
-    "nodemailer": "^6.9.16"
-  }
+  "description": "Free pre-start and SWMS tool for residential trades"
 }
